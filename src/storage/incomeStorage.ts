@@ -3,8 +3,8 @@
  * Использует @react-native-async-storage/async-storage с валидацией схемы и изоляцией ключей.
  */
 
-import type { IncomePeriod } from '../core/calculator.ts';
-import { calculateHourlyRate } from '../core/calculator.ts';
+import type { IncomePeriod } from '../core/calculator';
+import { calculateHourlyRate } from '../core/calculator';
 
 export const STORAGE_KEY_USER_INCOME = '@price2life/user_income_v1';
 
@@ -70,7 +70,7 @@ export function validateAndParseIncomeSettings(raw: unknown): UserIncomeSettings
   if (
     typeof candidate.income !== 'number' ||
     Number.isNaN(candidate.income) ||
-    candidate.income < 0 ||
+    candidate.income <= 0 ||
     !Number.isInteger(candidate.income)
   ) {
     return null;
@@ -83,15 +83,17 @@ export function validateAndParseIncomeSettings(raw: unknown): UserIncomeSettings
     return null;
   }
 
-  const updatedAt =
-    typeof candidate.updatedAt === 'number' && !Number.isNaN(candidate.updatedAt)
-      ? candidate.updatedAt
-      : Date.now();
+  if (
+    typeof candidate.updatedAt !== 'number' ||
+    Number.isNaN(candidate.updatedAt)
+  ) {
+    return null;
+  }
 
   return {
     income: candidate.income,
     period: candidate.period as IncomePeriod,
-    updatedAt,
+    updatedAt: candidate.updatedAt,
   };
 }
 
