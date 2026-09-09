@@ -109,7 +109,7 @@ export function calculateLifeTime(
   schedule: WorkScheduleConfig = DEFAULT_WORK_SCHEDULE
 ): ConversionResult {
   const compact = options.compact !== false;
-  const showMinutesForSubHour = options.showMinutesForSubHour !== false;
+  const showMinutesForSubHour = options.showMinutesForSubHour === true;
 
   if (typeof hourlyRate !== 'number' || Number.isNaN(hourlyRate) || hourlyRate <= 0) {
     return {
@@ -210,7 +210,9 @@ export function calculateLifeTime(
     formatted = parts.length > 0 ? parts.join(' ') : '0 ч.';
   }
 
-  const formattedTotal = pluralizeHours(totalWorkingHours);
+  const formattedTotal = isLessThanOneHour
+    ? '< 1 рабочего часа'
+    : pluralizeHours(totalWorkingHours);
 
   return {
     years,
