@@ -512,7 +512,7 @@
 <body data-theme="dark">
 
   <header class="meta-header">
-    <h1>UI Прототип: Price to Life (Android / React Native Paper)</h1>
+    <h1>UI Прототип: Life to Price (Android / React Native Paper)</h1>
     <p class="subtitle">
       Исследование вариантов структуры экранов, информационной плотности и компонентов Material 3 (Appbar, Card, TextInput, SegmentedButtons, RadioButton).
     </p>
@@ -553,7 +553,7 @@
     <!-- Appbar Header -->
     <div class="appbar" id="appbar">
       <button class="appbar-action" id="appbarLeftAction" onclick="handleAppbarLeft()"></button>
-      <div class="appbar-title" id="appbarTitle">Price to Life</div>
+      <div class="appbar-title" id="appbarTitle">Life❤️to💵Price</div>
       <button class="appbar-action" id="appbarRightAction" onclick="handleAppbarRight()">⚙️</button>
     </div>
 
@@ -770,7 +770,7 @@
 
       // Update Header
       if (state.screen === 'converter') {
-        appbarTitle.textContent = 'Price to Life';
+        appbarTitle.textContent = 'Life❤️to💵Price';
         appbarLeft.style.display = 'none';
         appbarRight.style.display = 'flex';
         appbarRight.textContent = '⚙️';
@@ -885,7 +885,7 @@
           content.innerHTML = `
             ${state.isFirstLaunch ? `
               <div class="m3-card" style="background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container);">
-                <strong>Добро пожаловать в Price to Life!</strong>
+                <strong>Добро пожаловать в Life❤️to💵Price!</strong>
                 <p style="font-size:0.82rem; margin-top:4px;">Укажите вашу зарплату «на руки» (Net), чтобы начать переводить цены в рабочее время.</p>
               </div>
             ` : ''}

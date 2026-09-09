@@ -23,7 +23,8 @@ describe('App Locale', () => {
     await renderApp({ getDeviceLanguageTags: () => ['en-US'] });
 
     expect(await screen.findByTestId('settings-title')).toHaveTextContent('Initial setup');
-    expect(screen.getByText('Welcome to Price to Life')).toBeOnTheScreen();
+    expect(screen.getByText('Welcome to Life❤️to💵Price')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Welcome to Life to Price')).toBeOnTheScreen();
     expect(screen.getByLabelText('System language · English')).toBeOnTheScreen();
     expect(screen.queryByLabelText('中文')).toBeNull();
   });
@@ -38,7 +39,7 @@ describe('App Locale', () => {
       getDeviceLanguageTags: () => ['en-US'],
     });
 
-    await screen.findByText('Welcome to Price to Life');
+    await screen.findByText('Welcome to Life❤️to💵Price');
     await user.press(screen.getByTestId('settings-language-field'));
     await user.press(await screen.findByLabelText('中文'));
 
@@ -79,7 +80,7 @@ describe('App Locale', () => {
     await user.type(screen.getByLabelText('Take-home income'), '150000');
     await user.press(screen.getByLabelText('Save income'));
 
-    expect(await screen.findByTestId('converter-title')).toHaveTextContent('Price to Life');
+    expect(await screen.findByTestId('converter-title')).toHaveTextContent('Life❤️to💵Price');
     expect(await localeService.getPreference()).toBeNull();
   });
 
@@ -96,7 +97,7 @@ describe('App Locale', () => {
       getDeviceLanguageTags: () => ['zh-CN'],
     });
 
-    expect(await screen.findByTestId('converter-title')).toHaveTextContent('Price to Life');
+    expect(await screen.findByTestId('converter-title')).toHaveTextContent('Life❤️to💵Price');
     expect(screen.getByText('Эквивалент рабочего времени')).toBeOnTheScreen();
   });
 });

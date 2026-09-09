@@ -1,6 +1,7 @@
 export const en = {
   loading: 'Loading',
-  brand: 'Price to Life',
+  brand: 'Life❤️to💵Price',
+  brandA11y: 'Life to Price',
   converter: {
     openSettings: 'Open settings',
     lifeTimeEquivalent: 'Working time equivalent',
@@ -16,7 +17,8 @@ export const en = {
     close: 'Close settings',
     firstLaunchTitle: 'Initial setup',
     incomeTitle: 'Income settings',
-    welcomeTitle: 'Welcome to Price to Life',
+    welcomeTitle: 'Welcome to Life❤️to💵Price',
+    welcomeTitleA11y: 'Welcome to Life to Price',
     welcomeBody:
       'Enter your income to start converting prices into working time. Data stays on this device only.',
     incomeAmount: 'Income amount',

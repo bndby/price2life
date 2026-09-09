@@ -1,6 +1,7 @@
 export const ru = {
   loading: 'Загрузка',
-  brand: 'Price to Life',
+  brand: 'Life❤️to💵Price',
+  brandA11y: 'Life to Price',
   converter: {
     openSettings: 'Открыть настройки',
     lifeTimeEquivalent: 'Эквивалент рабочего времени',
@@ -16,7 +17,8 @@ export const ru = {
     close: 'Закрыть настройки',
     firstLaunchTitle: 'Первоначальная настройка',
     incomeTitle: 'Настройки дохода',
-    welcomeTitle: 'Добро пожаловать в Price to Life',
+    welcomeTitle: 'Добро пожаловать в Life❤️to💵Price',
+    welcomeTitleA11y: 'Добро пожаловать в Life to Price',
     welcomeBody:
       'Укажите ваш доход, чтобы начать переводить цены в рабочее время. Данные остаются только на этом устройстве.',
     incomeAmount: 'Сумма дохода',

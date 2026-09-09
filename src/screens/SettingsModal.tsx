@@ -195,7 +195,11 @@ export function SettingsModal() {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         {isFirstLaunch && (
           <Surface style={[styles.welcomeBanner, { backgroundColor: theme.colors.primaryContainer }]} elevation={1}>
-            <Text variant="titleMedium" style={{ fontWeight: '700', color: theme.colors.onPrimaryContainer }}>
+            <Text
+              variant="titleMedium"
+              style={{ fontWeight: '700', color: theme.colors.onPrimaryContainer }}
+              accessibilityLabel={t('settings.welcomeTitleA11y')}
+            >
               {t('settings.welcomeTitle')}
             </Text>
             <Text variant="bodyMedium" style={{ color: theme.colors.onPrimaryContainer, marginTop: 4 }}>

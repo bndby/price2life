@@ -50,7 +50,14 @@ export function ConverterScreen() {
       edges={['left', 'right', 'bottom']}
     >
       <Appbar.Header mode="center-aligned">
-        <Appbar.Content title={t('brand')} titleStyle={{ fontWeight: '700' }} testID="converter-title" />
+        <Appbar.Content
+          title={t('brand')}
+          titleStyle={{ fontWeight: '700' }}
+          testID="converter-title"
+          accessible
+          accessibilityRole="header"
+          accessibilityLabel={t('brandA11y')}
+        />
         <Appbar.Action
           icon="cog"
           onPress={() => navigation.navigate('Settings', isConfigured ? undefined : { isFirstLaunch: true })}

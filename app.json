@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Price to Life",
+    "name": "Life to Price",
     "slug": "price2life",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,14 +9,13 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#1A1614"
     },
     "android": {
-      "package": "com.bndby.price2life",
+      "package": "by.bnd.life2price",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#1A1614",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false

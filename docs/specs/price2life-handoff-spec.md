@@ -1,4 +1,4 @@
-# Price to Life (price2life) — Hand-off Specification
+# Life to Price (price2life) — Hand-off Specification
 
 ## 1. Problem Statement (Постановка проблемы)
 
@@ -6,7 +6,7 @@
 
 ## 2. Solution (Решение)
 
-Мобильное приложение для Android **«Price to Life»** на React Native (Expo bare workflow / CNG) с компонентами Material Design 3 (React Native Paper).
+Мобильное приложение для Android **«Life to Price»** на React Native (Expo bare workflow / CNG) с компонентами Material Design 3 (React Native Paper).
 Приложение решает задачу в два экрана:
 1. **Экран настроек (Settings Modal)**: пользователь сохраняет свой персональный чистый доход («на руки», Net) и выбирает расчетный период (в час, день, неделю, месяц или год). При первом запуске приложение принудительно открывает этот экран для калибровки. Данные хранятся строго локально на устройстве в `AsyncStorage`.
 2. **Экран конвертера (Converter Screen)**: пользователь вводит цену товара/услуги и мгновенно видит эквивалент рабочего времени жизни в понятной иерархической форме («3 дн. 5 ч.») вместе с общим числом рабочих часов («29 рабочих часов»). Часовая ставка на этом экране не показывается.

@@ -1,6 +1,7 @@
 export const zhHans = {
   loading: '加载中',
-  brand: 'Price to Life',
+  brand: 'Life❤️to💵Price',
+  brandA11y: 'Life to Price',
   converter: {
     openSettings: '打开设置',
     lifeTimeEquivalent: '工作时间当量',
@@ -16,7 +17,8 @@ export const zhHans = {
     close: '关闭设置',
     firstLaunchTitle: '初始设置',
     incomeTitle: '收入设置',
-    welcomeTitle: '欢迎使用 Price to Life',
+    welcomeTitle: '欢迎使用 Life❤️to💵Price',
+    welcomeTitleA11y: '欢迎使用 Life to Price',
     welcomeBody: '请填写收入，以便将价格换算为工作时间。数据仅保存在本设备上。',
     incomeAmount: '收入金额',
     netIncome: '实得收入',

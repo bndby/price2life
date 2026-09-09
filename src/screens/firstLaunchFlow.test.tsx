@@ -57,7 +57,8 @@ describe('first launch flow', () => {
     await user.type(screen.getByLabelText('Доход на руки'), '150000');
     await user.press(screen.getByLabelText('Сохранить доход'));
 
-    expect(await screen.findByTestId('converter-title')).toHaveTextContent('Price to Life');
+    expect(await screen.findByTestId('converter-title')).toHaveTextContent('Life❤️to💵Price');
+    expect(screen.getByLabelText('Life to Price')).toBeOnTheScreen();
     expect(screen.queryByText(/Ставка:/)).toBeNull();
     expect(screen.queryByText('Быстрый выбор цены:')).toBeNull();
     expect(screen.queryByLabelText('Цена 500')).toBeNull();
@@ -79,7 +80,7 @@ describe('first launch flow', () => {
 
     await renderApp(service);
 
-    expect(await screen.findByTestId('converter-title')).toHaveTextContent('Price to Life');
+    expect(await screen.findByTestId('converter-title')).toHaveTextContent('Life❤️to💵Price');
     expect(screen.queryByText('Первоначальная настройка')).toBeNull();
 
     await user.type(screen.getByLabelText('Цена покупки'), '25000');
@@ -93,7 +94,7 @@ describe('first launch flow', () => {
     await user.press(screen.getByLabelText('Сохранить доход'));
 
     expect(await screen.findByTestId('life-time-equivalent')).toHaveTextContent('1 дн. 6 ч.');
-    expect(screen.getByTestId('converter-title')).toHaveTextContent('Price to Life');
+    expect(screen.getByTestId('converter-title')).toHaveTextContent('Life❤️to💵Price');
   });
 
   test('a previously saved person shows remaining-life share without opening settings', async () => {
