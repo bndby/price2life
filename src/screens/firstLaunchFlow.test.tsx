@@ -3,20 +3,27 @@ import { render, screen, userEvent } from '@testing-library/react-native';
 import App from '../../App';
 import { InMemoryStorageDriver, IncomeStorageService } from '../storage/incomeStorage';
 import { LocaleStorageService } from '../storage/localeStorage';
+import { PersonStorageService } from '../storage/personStorage';
+import type { Clock } from '../storage/PersonProvider';
 
 async function renderApp(
   service = new IncomeStorageService(new InMemoryStorageDriver()),
   options: {
     localeService?: LocaleStorageService;
+    personService?: PersonStorageService;
     getDeviceLanguageTags?: () => readonly string[];
+    now?: Clock;
   } = {},
 ) {
   const localeService = options.localeService ?? new LocaleStorageService(new InMemoryStorageDriver());
+  const personService = options.personService ?? new PersonStorageService(new InMemoryStorageDriver());
   await render(
     <App
       service={service}
+      personService={personService}
       localeService={localeService}
       getDeviceLanguageTags={options.getDeviceLanguageTags ?? (() => ['ru-RU'])}
+      now={options.now}
     />,
   );
 }
@@ -61,6 +68,7 @@ describe('first launch flow', () => {
 
     expect(await screen.findByTestId('life-time-equivalent')).toHaveTextContent('3 дн. 5 ч.');
     expect(screen.getByText('29 рабочих часов')).toBeOnTheScreen();
+    expect(screen.queryByTestId('life-share')).toBeNull();
   });
 
   test('a previously saved income skips settings and still converts the current price after a raise', async () => {
@@ -86,5 +94,62 @@ describe('first launch flow', () => {
 
     expect(await screen.findByTestId('life-time-equivalent')).toHaveTextContent('1 дн. 6 ч.');
     expect(screen.getByTestId('converter-title')).toHaveTextContent('Price to Life');
+  });
+
+  test('a previously saved person shows remaining-life share without opening settings', async () => {
+    const user = userEvent.setup();
+    const driver = new InMemoryStorageDriver();
+    const service = new IncomeStorageService(driver);
+    const personService = new PersonStorageService(driver);
+    await service.saveSettings(150000, 'month');
+    await personService.saveSettings({ year: 1996, month: 9, day: 10 }, 'male');
+
+    await renderApp(service, {
+      personService,
+      now: () => new Date(2026, 8, 10),
+    });
+
+    await user.type(await screen.findByLabelText('Цена покупки'), '25000');
+    expect(await screen.findByTestId('life-share')).toHaveTextContent('0,03% оставшейся жизни');
+  });
+
+  test('date of birth and sex add a remaining-life share badge under working hours', async () => {
+    const user = userEvent.setup();
+    await renderApp(new IncomeStorageService(new InMemoryStorageDriver()), {
+      now: () => new Date(2026, 8, 10),
+    });
+
+    await screen.findByLabelText('Доход на руки');
+    await user.type(screen.getByLabelText('Доход на руки'), '150000');
+    await user.type(screen.getByLabelText('День'), '10');
+    await user.type(screen.getByLabelText('Месяц'), '9');
+    await user.type(screen.getByLabelText('Год'), '1996');
+    await user.press(screen.getByText('Муж'));
+
+    expect(await screen.findByTestId('remaining-life-preview')).toHaveTextContent('Остаток жизни ≈ 43 года');
+    await user.press(screen.getByLabelText('Сохранить доход'));
+
+    await user.type(await screen.findByLabelText('Цена покупки'), '25000');
+    expect(await screen.findByTestId('life-time-equivalent')).toHaveTextContent('3 дн. 5 ч.');
+    expect(screen.getByText('29 рабочих часов')).toBeOnTheScreen();
+    expect(await screen.findByTestId('life-share')).toHaveTextContent('0,03% оставшейся жизни');
+  });
+
+  test('a future date of birth is rejected and does not leave settings', async () => {
+    const user = userEvent.setup();
+    await renderApp(new IncomeStorageService(new InMemoryStorageDriver()), {
+      now: () => new Date(2026, 8, 10),
+    });
+
+    await screen.findByLabelText('Доход на руки');
+    await user.type(screen.getByLabelText('Доход на руки'), '150000');
+    await user.type(screen.getByLabelText('День'), '11');
+    await user.type(screen.getByLabelText('Месяц'), '9');
+    await user.type(screen.getByLabelText('Год'), '2026');
+    await user.press(screen.getByText('Муж'));
+    await user.press(screen.getByLabelText('Сохранить доход'));
+
+    expect(await screen.findByText('Дата рождения не может быть в будущем')).toBeOnTheScreen();
+    expect(screen.getByTestId('settings-title')).toHaveTextContent('Первоначальная настройка');
   });
 });

@@ -20,12 +20,19 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { calculateHourlyRate, type IncomePeriod } from '../core/calculator';
 import {
+  isFutureDate,
+  isValidCalendarDate,
+  remainingLifeYears,
+  type Sex,
+} from '../core/remainingLife';
+import {
   APP_LOCALE_ENDONYMS,
   PICKER_LOCALE_ORDER,
   isAppLocale,
   type AppLocale,
 } from '../i18n/locales';
 import { useIncome } from '../storage/IncomeProvider';
+import { usePerson } from '../storage/PersonProvider';
 import { useAppLocale } from '../storage/LocaleProvider';
 import { digitsOnly, formatGroupedInteger, parseIntegerDigits } from './integerField';
 import type { SettingsModalNavigationProp, SettingsModalRouteProp } from './types';
@@ -36,11 +43,22 @@ export function SettingsModal() {
   const navigation = useNavigation<SettingsModalNavigationProp>();
   const route = useRoute<SettingsModalRouteProp>();
   const { income: currentIncome, period: currentPeriod, saveIncome } = useIncome();
+  const {
+    dateOfBirth: savedDateOfBirth,
+    sex: savedSex,
+    savePerson,
+    clearPerson,
+    today,
+  } = usePerson();
   const { preference, deviceResolved, numberLocale, selectLocale, followDevice } = useAppLocale();
   const isFirstLaunch = Boolean(route.params?.isFirstLaunch);
 
   const [rawIncome, setRawIncome] = useState(currentIncome > 0 ? String(currentIncome) : '');
   const [period, setPeriod] = useState<IncomePeriod>(currentPeriod || 'month');
+  const [rawDay, setRawDay] = useState(savedDateOfBirth ? String(savedDateOfBirth.day) : '');
+  const [rawMonth, setRawMonth] = useState(savedDateOfBirth ? String(savedDateOfBirth.month) : '');
+  const [rawYear, setRawYear] = useState(savedDateOfBirth ? String(savedDateOfBirth.year) : '');
+  const [sex, setSex] = useState<Sex | null>(savedSex);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [snackVisible, setSnackVisible] = useState(false);
@@ -49,6 +67,23 @@ export function SettingsModal() {
   const income = useMemo(() => parseIntegerDigits(rawIncome), [rawIncome]);
 
   const previewHourlyRate = useMemo(() => calculateHourlyRate(income, period), [income, period]);
+
+  const filledDobCount = [rawDay, rawMonth, rawYear].filter((part) => part.length > 0).length;
+  const draftDateOfBirth =
+    filledDobCount === 3
+      ? {
+          day: parseIntegerDigits(rawDay),
+          month: parseIntegerDigits(rawMonth),
+          year: parseIntegerDigits(rawYear),
+        }
+      : null;
+  const previewRemainingLife =
+    draftDateOfBirth &&
+    sex &&
+    isValidCalendarDate(draftDateOfBirth) &&
+    !isFutureDate(draftDateOfBirth, today)
+      ? remainingLifeYears(draftDateOfBirth, sex, today)
+      : null;
 
   useEffect(() => {
     if (!isFirstLaunch) {
@@ -74,12 +109,41 @@ export function SettingsModal() {
       return;
     }
 
+    if (filledDobCount > 0 && filledDobCount < 3) {
+      setErrorMessage(t('settings.incompletePerson'));
+      return;
+    }
+
+    if (draftDateOfBirth) {
+      if (!isValidCalendarDate(draftDateOfBirth)) {
+        setErrorMessage(t('settings.invalidDateOfBirth'));
+        return;
+      }
+      if (isFutureDate(draftDateOfBirth, today)) {
+        setErrorMessage(t('settings.futureDateOfBirth'));
+        return;
+      }
+      if (!sex) {
+        setErrorMessage(t('settings.incompletePerson'));
+        return;
+      }
+    }
+
     try {
       setIsSaving(true);
       const success = await saveIncome(income, period);
       if (!success) {
         setErrorMessage(t('settings.saveFailed'));
         return;
+      }
+      if (draftDateOfBirth && sex) {
+        const personSaved = await savePerson(draftDateOfBirth, sex);
+        if (!personSaved) {
+          setErrorMessage(t('settings.saveFailed'));
+          return;
+        }
+      } else {
+        await clearPerson();
       }
       navigation.goBack();
     } finally {
@@ -218,6 +282,82 @@ export function SettingsModal() {
           </Card.Content>
         </Card>
 
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          {t('settings.dateOfBirth')}
+        </Text>
+        <View style={styles.dobRow}>
+          <TextInput
+            label={t('settings.dobDay')}
+            value={rawDay}
+            onChangeText={(text) => {
+              setRawDay(digitsOnly(text).slice(0, 2));
+              if (errorMessage) setErrorMessage('');
+            }}
+            keyboardType="number-pad"
+            mode="outlined"
+            accessibilityLabel={t('settings.dobDay')}
+            style={[styles.input, styles.dobField]}
+            testID="settings-dob-day"
+          />
+          <TextInput
+            label={t('settings.dobMonth')}
+            value={rawMonth}
+            onChangeText={(text) => {
+              setRawMonth(digitsOnly(text).slice(0, 2));
+              if (errorMessage) setErrorMessage('');
+            }}
+            keyboardType="number-pad"
+            mode="outlined"
+            accessibilityLabel={t('settings.dobMonth')}
+            style={[styles.input, styles.dobField]}
+            testID="settings-dob-month"
+          />
+          <TextInput
+            label={t('settings.dobYear')}
+            value={rawYear}
+            onChangeText={(text) => {
+              setRawYear(digitsOnly(text).slice(0, 4));
+              if (errorMessage) setErrorMessage('');
+            }}
+            keyboardType="number-pad"
+            mode="outlined"
+            accessibilityLabel={t('settings.dobYear')}
+            style={[styles.input, styles.dobYearField]}
+            testID="settings-dob-year"
+          />
+        </View>
+
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          {t('settings.sex')}
+        </Text>
+        <SegmentedButtons
+          value={sex ?? ''}
+          onValueChange={(val) => {
+            setSex(val === 'male' || val === 'female' ? val : null);
+            if (errorMessage) setErrorMessage('');
+          }}
+          density="small"
+          buttons={[
+            { value: 'male', label: t('settings.sexMale'), testID: 'settings-sex-male' },
+            { value: 'female', label: t('settings.sexFemale'), testID: 'settings-sex-female' },
+          ]}
+          style={styles.segmentedButtons}
+        />
+
+        {previewRemainingLife !== null ? (
+          <Card style={[styles.previewCard, { backgroundColor: theme.colors.elevation.level1 }]} mode="elevated">
+            <Card.Content>
+              <Text
+                variant="labelMedium"
+                style={{ color: theme.colors.outline }}
+                testID="remaining-life-preview"
+              >
+                {t('settings.remainingLifePreview', { count: Math.round(previewRemainingLife) })}
+              </Text>
+            </Card.Content>
+          </Card>
+        ) : null}
+
         <Button
           mode="contained"
           onPress={handleSave}
@@ -288,6 +428,16 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 18,
+  },
+  dobRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  dobField: {
+    flex: 1,
+  },
+  dobYearField: {
+    flex: 1.4,
   },
   segmentedButtons: {
     marginVertical: 10,

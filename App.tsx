@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { IncomeProvider, useIncome } from './src/storage/IncomeProvider';
 import { IncomeStorageService } from './src/storage/incomeStorage';
+import { PersonProvider, usePerson, type Clock } from './src/storage/PersonProvider';
+import { PersonStorageService } from './src/storage/personStorage';
 import { createAsyncStorageDriver } from './src/storage/asyncStorageDriver';
 import {
   LocaleProvider,
@@ -39,10 +41,11 @@ function LoadingScreen() {
 
 function AppShell() {
   const { isLoading, isConfigured } = useIncome();
+  const { isLoading: isPersonLoading } = usePerson();
   const { isLoading: isLocaleLoading } = useAppLocale();
   const navigationRef = useNavigationContainerRef<RootStackParamList>();
 
-  if (isLoading || isLocaleLoading) {
+  if (isLoading || isPersonLoading || isLocaleLoading) {
     return <LoadingScreen />;
   }
 
@@ -63,16 +66,24 @@ function AppShell() {
 
 export default function App({
   service,
+  personService,
   localeService,
   getDeviceLanguageTags,
+  now,
 }: {
   service?: IncomeStorageService;
+  personService?: PersonStorageService;
   localeService?: LocaleStorageService;
   getDeviceLanguageTags?: DeviceLanguageTagsFn;
+  now?: Clock;
 }) {
   const resolvedService = useMemo(
     () => service ?? new IncomeStorageService(createAsyncStorageDriver()),
     [service],
+  );
+  const resolvedPersonService = useMemo(
+    () => personService ?? new PersonStorageService(createAsyncStorageDriver()),
+    [personService],
   );
   const resolvedLocaleService = useMemo(
     () => localeService ?? new LocaleStorageService(createAsyncStorageDriver()),
@@ -82,17 +93,20 @@ export default function App({
     () => getDeviceLanguageTags ?? readDeviceLanguageTagsFromExpo,
     [getDeviceLanguageTags],
   );
+  const resolvedNow = useMemo(() => now ?? (() => new Date()), [now]);
 
   return (
     <PaperProvider>
       <SafeAreaProvider>
         <IncomeProvider service={resolvedService}>
-          <LocaleProvider
-            service={resolvedLocaleService}
-            getDeviceLanguageTags={resolvedGetDeviceLanguageTags}
-          >
-            <AppShell />
-          </LocaleProvider>
+          <PersonProvider service={resolvedPersonService} now={resolvedNow}>
+            <LocaleProvider
+              service={resolvedLocaleService}
+              getDeviceLanguageTags={resolvedGetDeviceLanguageTags}
+            >
+              <AppShell />
+            </LocaleProvider>
+          </PersonProvider>
         </IncomeProvider>
       </SafeAreaProvider>
     </PaperProvider>

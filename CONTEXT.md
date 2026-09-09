@@ -36,9 +36,13 @@ _Avoid_: Language, UI Language, i18n, localization
 Календарная дата рождения пользователя. Возраст — производное от неё и текущей даты, сам по себе не хранится.
 _Avoid_: возраст, years old
 
+**Sex (Пол)**:
+Биологический пол для таблицы дожития: мужчина или женщина.
+_Avoid_: гендер, gender, gender identity
+
 **Remaining Life (Остаток жизни)**:
-Ожидаемая оставшаяся продолжительность жизни этого пользователя, в тех же единицах Work Schedule, что и Life Time Equivalent: 2080 часов = 1 год остатка.
-_Avoid_: средняя продолжительность жизни, срок до пенсии, карьера, Average Human Lifespan
+Ожидаемая оставшаяся продолжительность жизни этого пользователя в достигнутом возрасте (period life expectancy) при данном Sex, в тех же единицах Work Schedule, что и Life Time Equivalent: 2080 часов = 1 год остатка.
+_Avoid_: средняя продолжительность жизни, срок до пенсии, карьера, Average Human Lifespan, e_0 минус возраст
 
 **Life Share (Доля жизни)**:
 Life Time Equivalent как процент от Remaining Life.

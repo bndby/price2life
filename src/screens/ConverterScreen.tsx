@@ -13,7 +13,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { calculateLifeTime } from '../core/calculator';
+import { formatLifeShare, lifeSharePercent } from '../core/lifeShare';
 import { useIncome } from '../storage/IncomeProvider';
+import { usePerson } from '../storage/PersonProvider';
 import { useAppLocale } from '../storage/LocaleProvider';
 import { digitsOnly, formatGroupedInteger, parseIntegerDigits } from './integerField';
 import type { ConverterScreenNavigationProp } from './types';
@@ -23,6 +25,7 @@ export function ConverterScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation<ConverterScreenNavigationProp>();
   const { hourlyRate, isConfigured } = useIncome();
+  const { remainingLifeYears } = usePerson();
   const { numberLocale } = useAppLocale();
   const [rawPrice, setRawPrice] = useState('');
 
@@ -31,6 +34,12 @@ export function ConverterScreen() {
     () => calculateLifeTime(price, hourlyRate),
     [price, hourlyRate, numberLocale],
   );
+  const lifeShareText = useMemo(() => {
+    if (!isConfigured || remainingLifeYears === null) {
+      return null;
+    }
+    return formatLifeShare(lifeSharePercent(conversion.totalWorkingHours, remainingLifeYears));
+  }, [isConfigured, remainingLifeYears, conversion.totalWorkingHours, numberLocale]);
 
   const resultText = isConfigured ? conversion.formatted : '—';
   const totalText = isConfigured ? conversion.formattedTotal : t('converter.incomeNotSet');
@@ -71,6 +80,22 @@ export function ConverterScreen() {
                   </Text>
                 </Surface>
               </View>
+              {lifeShareText ? (
+                <View style={[styles.badgeRow, styles.lifeShareRow]}>
+                  <Surface
+                    style={[styles.pillBadge, { backgroundColor: theme.colors.secondaryContainer }]}
+                    elevation={0}
+                  >
+                    <Text
+                      variant="labelMedium"
+                      style={{ color: theme.colors.onSecondaryContainer, fontWeight: '700' }}
+                      testID="life-share"
+                    >
+                      {lifeShareText}
+                    </Text>
+                  </Surface>
+                </View>
+              ) : null}
             </Card.Content>
           </Card>
 
@@ -129,6 +154,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     flexWrap: 'wrap',
+  },
+  lifeShareRow: {
+    marginTop: 8,
   },
   pillBadge: {
     paddingHorizontal: 12,
