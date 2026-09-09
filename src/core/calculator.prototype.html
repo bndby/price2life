@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Прототип логики: Калькулятор конверсии Price to Life</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .question {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .state-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.95rem;
+    }
+
+    .state-row:last-child {
+      border-bottom: none;
+    }
+
+    .state-label {
+      color: var(--text-muted);
+    }
+
+    .state-val {
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .highlight-val {
+      color: var(--success);
+      font-size: 1.15rem;
+    }
+
+    .warning-val {
+      color: var(--danger);
+    }
+
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    input, select {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    button {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    button:hover {
+      background: var(--accent-hover);
+    }
+
+    button.secondary {
+      background: #334155;
+      color: var(--text);
+    }
+
+    button.secondary:hover {
+      background: #475569;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      overflow-x: auto;
+    }
+
+    .tab {
+      background: transparent;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      font-size: 0.9rem;
+    }
+
+    .tab.active {
+      background: #334155;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .scenario-desc {
+      background: #0f172a;
+      border-left: 3px solid var(--accent);
+      padding: 12px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+
+    .step-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .step-badge {
+      background: #334155;
+      color: var(--accent);
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .step-text {
+      flex: 1;
+      font-size: 0.85rem;
+    }
+
+    .last-action {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Прототип логики: Конвертер Price to Life</h1>
+    <p class="question">
+      <strong>Вопрос:</strong> Как переводить доход в часовую ставку и цену покупки в составной эквивалент рабочего времени («X г. Y мес. Z дн. W ч.» + общее число часов) для целых чисел с корректным округлением и обработкой граничных случаев?
+    </p>
+  </header>
+
+  <div class="grid">
+    <!-- Panel 1: Controls -->
+    <div class="card">
+      <div class="card-title">
+        <span>Параметры (Свободная игра)</span>
+        <button class="secondary" onclick="resetDefaults()">Сбросить</button>
+      </div>
+
+      <div class="input-group">
+        <label for="incomeInput">Доход (Net, целое число):</label>
+        <input type="number" id="incomeInput" value="150000" min="0" step="1" oninput="handleParamChange()">
+      </div>
+
+      <div class="input-group">
+        <label for="periodSelect">Период дохода:</label>
+        <select id="periodSelect" onchange="handleParamChange()">
+          <option value="month" selected>В месяц (173.33 ч)</option>
+          <option value="year">В год (2 080 ч)</option>
+          <option value="week">В неделю (40 ч)</option>
+          <option value="day">В день (8 ч)</option>
+          <option value="hour">В час (1 ч)</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="priceInput">Цена товара / услуги (целое число):</label>
+        <input type="number" id="priceInput" value="25000" min="0" step="1" oninput="handleParamChange()">
+      </div>
+
+      <div class="btn-row">
+        <button class="secondary" onclick="setQuickPrice(300)">Кофе (300)</button>
+        <button class="secondary" onclick="setQuickPrice(3500)">Ужин (3 500)</button>
+        <button class="secondary" onclick="setQuickPrice(120000)">Смартфон (120 000)</button>
+        <button class="secondary" onclick="setQuickPrice(2500000)">Автомобиль (2 500 000)</button>
+      </div>
+
+      <div class="last-action" id="lastActionText">Готов к вычислениям</div>
+    </div>
+
+    <!-- Panel 2: State -->
+    <div class="card">
+      <div class="card-title">Текущее состояние модели</div>
+
+      <div class="state-row">
+        <span class="state-label">Часовая ставка:</span>
+        <span class="state-val" id="hourlyRateVal">—</span>
+      </div>
+
+      <div class="state-row">
+        <span class="state-label">Составное рабочее время:</span>
+        <span class="state-val highlight-val" id="formattedVal">—</span>
+      </div>
+
+      <div class="state-row">
+        <span class="state-label">Всего рабочих часов:</span>
+        <span class="state-val" id="formattedTotalVal">—</span>
+      </div>
+
+      <div class="state-row">
+        <span class="state-label">Разбивка (г / мес / дн / ч):</span>
+        <span class="state-val" id="breakdownVal">0 г. 0 мес. 0 дн. 0 ч.</span>
+      </div>
+
+      <div class="state-row">
+        <span class="state-label">Меньше 1 часа?</span>
+        <span class="state-val" id="isLessThanHourVal">Нет</span>
+      </div>
+
+      <div class="state-row">
+        <span class="state-label">Статус валидности:</span>
+        <span class="state-val" id="statusVal">OK</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel 3: Scenarios -->
+  <div class="card">
+    <div class="card-title">Пошаговые сценарии (Walkthroughs)</div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchScenario(0)">1. Обычная покупка</button>
+      <button class="tab" onclick="switchScenario(1)">2. Микропокупка (< 1 ч)</button>
+      <button class="tab" onclick="switchScenario(2)">3. Крупная покупка (> года)</button>
+      <button class="tab" onclick="switchScenario(3)">4. Нулевая цена</button>
+      <button class="tab" onclick="switchScenario(4)">5. Граничный перенос (7.8ч -> 1дн)</button>
+      <button class="tab" onclick="switchScenario(5)">6. Доход не задан (0)</button>
+    </div>
+
+    <div class="scenario-desc" id="scenarioDesc"></div>
+    <ul class="step-list" id="scenarioSteps"></ul>
+  </div>
+
+  <!-- Isolated Pure Module Script -->
+  <script>
+    // --- PURE CORE MODULE START ---
+    const DEFAULT_WORK_SCHEDULE = {
+      hoursPerDay: 8,
+      hoursPerWeek: 40,
+      hoursPerYear: 2080,
+      hoursPerMonth: 2080 / 12, // 173.33333333333334
+    };
+
+    function calculateHourlyRate(income, period, schedule = DEFAULT_WORK_SCHEDULE) {
+      if (typeof income !== 'number' || Number.isNaN(income) || income <= 0) {
+        return 0;
+      }
+      switch (period) {
+        case 'hour': return income;
+        case 'day': return income / schedule.hoursPerDay;
+        case 'week': return income / schedule.hoursPerWeek;
+        case 'month': return income / schedule.hoursPerMonth;
+        case 'year': return income / schedule.hoursPerYear;
+        default: return 0;
+      }
+    }
+
+    function pluralizeHours(count) {
+      if (count > 0 && count < 1) {
+        return '< 1 рабочего часа';
+      }
+
+      const absCount = Math.abs(Math.round(count));
+      const mod100 = absCount % 100;
+      const mod10 = absCount % 10;
+
+      if (mod100 >= 11 && mod100 <= 19) {
+        return `${absCount.toLocaleString('ru-RU')} рабочих часов`;
+      }
+      if (mod10 === 1) {
+        return `${absCount.toLocaleString('ru-RU')} рабочий час`;
+      }
+      if (mod10 >= 2 && mod10 <= 4) {
+        return `${absCount.toLocaleString('ru-RU')} рабочих часа`;
+      }
+      return `${absCount.toLocaleString('ru-RU')} рабочих часов`;
+    }
+
+    function calculateLifeTime(price, hourlyRate, schedule = DEFAULT_WORK_SCHEDULE) {
+      if (typeof hourlyRate !== 'number' || Number.isNaN(hourlyRate) || hourlyRate <= 0) {
+        return {
+          years: 0,
+          months: 0,
+          days: 0,
+          hours: 0,
+          totalWorkingHours: 0,
+          formatted: '—',
+          formattedTotal: '—',
+          isLessThanOneHour: false,
+          isValid: false,
+          errorMessage: 'Необходимо указать положительный доход в настройках',
+        };
+      }
+
+      if (typeof price !== 'number' || Number.isNaN(price) || price < 0) {
+        return {
+          years: 0,
+          months: 0,
+          days: 0,
+          hours: 0,
+          totalWorkingHours: 0,
+          formatted: '—',
+          formattedTotal: '—',
+          isLessThanOneHour: false,
+          isValid: false,
+          errorMessage: 'Цена должна быть неотрицательным числом',
+        };
+      }
+
+      if (price === 0) {
+        return {
+          years: 0,
+          months: 0,
+          days: 0,
+          hours: 0,
+          totalWorkingHours: 0,
+          formatted: '0 ч.',
+          formattedTotal: '0 рабочих часов',
+          isLessThanOneHour: false,
+          isValid: true,
+        };
+      }
+
+      const totalWorkingHours = price / hourlyRate;
+
+      const years = Math.floor(totalWorkingHours / schedule.hoursPerYear);
+      const remAfterYears = totalWorkingHours - years * schedule.hoursPerYear;
+
+      const months = Math.floor(remAfterYears / schedule.hoursPerMonth);
+      const remAfterMonths = remAfterYears - months * schedule.hoursPerMonth;
+
+      let days = Math.floor(remAfterMonths / schedule.hoursPerDay);
+      const remAfterDays = remAfterMonths - days * schedule.hoursPerDay;
+
+      let hours = Math.round(remAfterDays);
+
+      if (hours >= schedule.hoursPerDay) {
+        days += 1;
+        hours = 0;
+      }
+
+      const isLessThanOneHour = years === 0 && months === 0 && days === 0 && hours === 0;
+
+      let formatted = '';
+      if (isLessThanOneHour) {
+        formatted = '< 1 ч.';
+      } else {
+        const parts = [];
+        if (years > 0) parts.push(`${years} г.`);
+        if (months > 0) parts.push(`${months} мес.`);
+        if (days > 0) parts.push(`${days} дн.`);
+        if (hours > 0) parts.push(`${hours} ч.`);
+        formatted = parts.join(' ');
+      }
+
+      const formattedTotal = pluralizeHours(totalWorkingHours);
+
+      return {
+        years,
+        months,
+        days,
+        hours,
+        totalWorkingHours,
+        formatted,
+        formattedTotal,
+        isLessThanOneHour,
+        isValid: true,
+      };
+    }
+    // --- PURE CORE MODULE END ---
+  </script>
+
+  <!-- Interactive Harness Script -->
+  <script>
+    let state = {
+      income: 150000,
+      period: 'month',
+      price: 25000,
+      lastAction: 'Инициализация приложения'
+    };
+
+    const scenarios = [
+      {
+        title: 'Обычная покупка',
+        desc: 'Проверяет стандартный расчет: доход 150 000 руб/мес (~865 руб/ч), покупка 25 000 руб (~28.8 ч = 3 дня и 5 часов).',
+        steps: [
+          { label: 'Установить доход 150 000 / месяц', run: () => setParams(150000, 'month', 25000, 'Установлен доход 150 000 руб/мес') },
+          { label: 'Указать цену покупки 25 000', run: () => setParams(150000, 'month', 25000, 'Цена установлена в 25 000') }
+        ]
+      },
+      {
+        title: 'Микропокупка (< 1 ч)',
+        desc: 'Проверяет случай, когда цена покупки требует меньше 30 минут работы. Вместо пустого "0 ч." должно отображаться понятное "< 1 ч.".',
+        steps: [
+          { label: 'Установить доход 150 000 / месяц', run: () => setParams(150000, 'month', 300, 'Установлен доход 150 000 руб/мес') },
+          { label: 'Указать цену кофе 300 руб (~20 минут)', run: () => setParams(150000, 'month', 300, 'Проверка микропокупки 300 руб') }
+        ]
+      },
+      {
+        title: 'Крупная покупка (> года)',
+        desc: 'Проверяет покупку автомобиля или квартиры: правильное сложение лет, месяцев, дней и часов, а также общий счетчик тысяч часов.',
+        steps: [
+          { label: 'Установить доход 100 000 / месяц (~577 руб/ч)', run: () => setParams(100000, 'month', 3000000, 'Доход 100 000 руб/мес') },
+          { label: 'Указать цену 3 000 000 руб (~5 200 ч)', run: () => setParams(100000, 'month', 3000000, 'Расчет крупной покупки 3 000 000') }
+        ]
+      },
+      {
+        title: 'Нулевая цена',
+        desc: 'Покупка за 0 денежных единиц должна четко возвращать "0 ч." и 0 рабочих часов без ошибок валидации.',
+        steps: [
+          { label: 'Указать цену 0', run: () => setParams(150000, 'month', 0, 'Цена покупки 0') }
+        ]
+      },
+      {
+        title: 'Граничный перенос (7.8ч -> 1дн)',
+        desc: 'Проверяет округление: когда остаток часов 7.8 ч округляется до 8 ч, он должен переноситься в +1 день, а часы обнуляться (не допускать "8 ч").',
+        steps: [
+          { label: 'Задать ставку 100 руб/час и цену 780 руб', run: () => setParams(100, 'hour', 780, '780 руб / 100 = 7.8 часов') }
+        ]
+      },
+      {
+        title: 'Доход не задан (0)',
+        desc: 'Если пользователь еще не указал доход или ввел 0, калькулятор должен выдавать статус невалидности с предупреждением о настройках.',
+        steps: [
+          { label: 'Сбросить доход в 0', run: () => setParams(0, 'month', 5000, 'Доход сброшен в 0') }
+        ]
+      }
+    ];
+
+    let currentScenarioIdx = 0;
+
+    function render() {
+      document.getElementById('incomeInput').value = state.income;
+      document.getElementById('periodSelect').value = state.period;
+      document.getElementById('priceInput').value = state.price;
+      document.getElementById('lastActionText').textContent = state.lastAction;
+
+      const hourlyRate = calculateHourlyRate(state.income, state.period);
+      const result = calculateLifeTime(state.price, hourlyRate);
+
+      if (hourlyRate > 0) {
+        document.getElementById('hourlyRateVal').textContent = `${Math.round(hourlyRate).toLocaleString('ru-RU')} / час`;
+      } else {
+        document.getElementById('hourlyRateVal').textContent = '— (доход 0)';
+      }
+
+      if (result.isValid) {
+        document.getElementById('formattedVal').textContent = result.formatted;
+        document.getElementById('formattedVal').className = 'state-val highlight-val';
+        document.getElementById('formattedTotalVal').textContent = result.formattedTotal;
+        document.getElementById('breakdownVal').textContent = `${result.years} г. ${result.months} мес. ${result.days} дн. ${result.hours} ч.`;
+        document.getElementById('isLessThanHourVal').textContent = result.isLessThanOneHour ? 'Да (< 1 ч.)' : 'Нет';
+        document.getElementById('statusVal').textContent = 'Валидно';
+        document.getElementById('statusVal').className = 'state-val';
+      } else {
+        document.getElementById('formattedVal').textContent = '—';
+        document.getElementById('formattedVal').className = 'state-val warning-val';
+        document.getElementById('formattedTotalVal').textContent = '—';
+        document.getElementById('breakdownVal').textContent = '—';
+        document.getElementById('isLessThanHourVal').textContent = '—';
+        document.getElementById('statusVal').textContent = result.errorMessage || 'Ошибка';
+        document.getElementById('statusVal').className = 'state-val warning-val';
+      }
+    }
+
+    function handleParamChange() {
+      state.income = parseInt(document.getElementById('incomeInput').value, 10) || 0;
+      state.period = document.getElementById('periodSelect').value;
+      state.price = parseInt(document.getElementById('priceInput').value, 10) || 0;
+      state.lastAction = 'Ручное изменение параметров';
+      render();
+    }
+
+    function setParams(income, period, price, actionName) {
+      state.income = income;
+      state.period = period;
+      state.price = price;
+      state.lastAction = actionName;
+      render();
+    }
+
+    function setQuickPrice(price) {
+      state.price = price;
+      state.lastAction = `Выбрана быстрая цена: ${price.toLocaleString('ru-RU')}`;
+      render();
+    }
+
+    function resetDefaults() {
+      setParams(150000, 'month', 25000, 'Сброс параметров по умолчанию');
+    }
+
+    function switchScenario(idx) {
+      currentScenarioIdx = idx;
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach((tab, i) => {
+        tab.className = (i === idx) ? 'tab active' : 'tab';
+      });
+
+      const sc = scenarios[idx];
+      document.getElementById('scenarioDesc').textContent = sc.desc;
+
+      const stepsUl = document.getElementById('scenarioSteps');
+      stepsUl.innerHTML = '';
+      sc.steps.forEach((step, i) => {
+        const li = document.createElement('li');
+        li.className = 'step-item';
+        li.innerHTML = `
+          <div class="step-badge">${i + 1}</div>
+          <div class="step-text">${step.label}</div>
+          <button onclick="runScenarioStep(${idx}, ${i})">Выполнить шаг</button>
+        `;
+        stepsUl.appendChild(li);
+      });
+    }
+
+    function runScenarioStep(scenarioIdx, stepIdx) {
+      scenarios[scenarioIdx].steps[stepIdx].run();
+    }
+
+    // Init
+    switchScenario(0);
+    render();
+  </script>
+</body>
+</html>
