@@ -5,7 +5,6 @@ import {
   Card,
   TextInput,
   Text,
-  Chip,
   Surface,
   HelperText,
   useTheme,
@@ -16,8 +15,6 @@ import { calculateLifeTime } from '../core/calculator';
 import { useIncome } from '../storage/IncomeProvider';
 import { digitsOnly, formatGroupedInteger, parseIntegerDigits } from './integerField';
 import type { ConverterScreenNavigationProp } from './types';
-
-const PRESET_PRICES = [500, 2500, 15000, 80000];
 
 export function ConverterScreen() {
   const theme = useTheme();
@@ -66,11 +63,6 @@ export function ConverterScreen() {
                     {totalText}
                   </Text>
                 </Surface>
-                {isConfigured && (
-                  <Text variant="bodySmall" style={{ color: theme.colors.outline }}>
-                    Ставка: {Math.round(hourlyRate).toLocaleString('ru-RU')} / ч
-                  </Text>
-                )}
               </View>
             </Card.Content>
           </Card>
@@ -92,24 +84,6 @@ export function ConverterScreen() {
                 ? 'Сначала укажите доход в настройках'
                 : 'Введите стоимость товара или услуги (целое число)'}
             </HelperText>
-
-            <Text variant="labelSmall" style={[styles.presetTitle, { color: theme.colors.outline }]}>
-              Быстрый выбор цены:
-            </Text>
-            <View style={styles.chipRow}>
-              {PRESET_PRICES.map((preset) => (
-                <Chip
-                  key={preset}
-                  mode={price === preset ? 'flat' : 'outlined'}
-                  selected={price === preset}
-                  onPress={() => setRawPrice(String(preset))}
-                  style={styles.chip}
-                  accessibilityLabel={`Цена ${preset.toLocaleString('ru-RU')}`}
-                >
-                  {preset.toLocaleString('ru-RU')}
-                </Chip>
-              ))}
-            </View>
           </View>
         </ScrollView>
       </Pressable>
@@ -153,18 +127,5 @@ const styles = StyleSheet.create({
   },
   priceInput: {
     fontSize: 20,
-  },
-  presetTitle: {
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  chip: {
-    marginRight: 6,
-    marginBottom: 6,
   },
 });

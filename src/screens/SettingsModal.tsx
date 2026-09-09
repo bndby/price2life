@@ -117,7 +117,6 @@ export function SettingsModal() {
           }}
           keyboardType="number-pad"
           mode="outlined"
-          placeholder="150 000"
           error={Boolean(errorMessage)}
           accessibilityLabel="Доход на руки"
           style={styles.input}

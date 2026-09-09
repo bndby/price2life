@@ -37,6 +37,12 @@ describe('first launch flow', () => {
     await user.press(screen.getByLabelText('Сохранить доход'));
 
     expect(await screen.findByTestId('converter-title')).toHaveTextContent('Price to Life');
+    expect(screen.queryByText(/Ставка:/)).toBeNull();
+    expect(screen.queryByText('Быстрый выбор цены:')).toBeNull();
+    expect(screen.queryByLabelText('Цена 500')).toBeNull();
+    expect(screen.queryByLabelText('Цена 2 500')).toBeNull();
+    expect(screen.queryByLabelText('Цена 15 000')).toBeNull();
+    expect(screen.queryByLabelText('Цена 80 000')).toBeNull();
     await user.type(screen.getByLabelText('Цена покупки'), '25000');
 
     expect(await screen.findByTestId('life-time-equivalent')).toHaveTextContent('3 дн. 5 ч.');
