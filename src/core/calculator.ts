@@ -1,6 +1,6 @@
 /**
  * Price to Life Core Calculator
- * Чистые функции перевода дохода в часовую ставку и цены покупки в составной эквивалент рабочего времени.
+ * Чистые функции перевода дохода в часовую ставку и цены покупки в составной эквивалент рабочего времени жизни.
  */
 
 export type IncomePeriod = 'hour' | 'day' | 'week' | 'month' | 'year';
@@ -16,16 +16,23 @@ export const DEFAULT_WORK_SCHEDULE: WorkScheduleConfig = {
   hoursPerDay: 8,
   hoursPerWeek: 40,
   hoursPerYear: 2080,
-  hoursPerMonth: 2080 / 12, // 173.33333333333334
+  hoursPerMonth: 173.33,
 };
+
+export interface ConversionOptions {
+  readonly compact?: boolean;
+  readonly showMinutesForSubHour?: boolean;
+}
 
 export interface ConversionResult {
   readonly years: number;
   readonly months: number;
   readonly days: number;
   readonly hours: number;
+  readonly minutes: number;
   readonly totalWorkingHours: number;
   readonly formatted: string;
+  readonly fullFormatted: string;
   readonly formattedTotal: string;
   readonly isLessThanOneHour: boolean;
   readonly isValid: boolean;
@@ -68,7 +75,8 @@ export function calculateHourlyRate(
  */
 export function pluralizeHours(count: number): string {
   if (count > 0 && count < 1) {
-    return '< 1 рабочего часа';
+    const minutes = Math.round(count * 60);
+    return `${count.toFixed(1)} рабочих часа (${minutes} мин.)`;
   }
 
   const absCount = Math.abs(Math.round(count));
@@ -91,21 +99,28 @@ export function pluralizeHours(count: number): string {
  * Конвертирует цену покупки в составной эквивалент рабочего времени жизни.
  * @param price Цена покупки (целое положительное число)
  * @param hourlyRate Часовая ставка пользователя (> 0)
+ * @param options Опции форматирования (compact, showMinutesForSubHour)
  * @param schedule Рабочий график
  */
 export function calculateLifeTime(
   price: number,
   hourlyRate: number,
+  options: ConversionOptions = {},
   schedule: WorkScheduleConfig = DEFAULT_WORK_SCHEDULE
 ): ConversionResult {
+  const compact = options.compact !== false;
+  const showMinutesForSubHour = options.showMinutesForSubHour !== false;
+
   if (typeof hourlyRate !== 'number' || Number.isNaN(hourlyRate) || hourlyRate <= 0) {
     return {
       years: 0,
       months: 0,
       days: 0,
       hours: 0,
+      minutes: 0,
       totalWorkingHours: 0,
       formatted: '—',
+      fullFormatted: '—',
       formattedTotal: '—',
       isLessThanOneHour: false,
       isValid: false,
@@ -119,8 +134,10 @@ export function calculateLifeTime(
       months: 0,
       days: 0,
       hours: 0,
+      minutes: 0,
       totalWorkingHours: 0,
       formatted: '—',
+      fullFormatted: '—',
       formattedTotal: '—',
       isLessThanOneHour: false,
       isValid: false,
@@ -134,8 +151,10 @@ export function calculateLifeTime(
       months: 0,
       days: 0,
       hours: 0,
+      minutes: 0,
       totalWorkingHours: 0,
       formatted: '0 ч.',
+      fullFormatted: '0 г. 0 мес. 0 дн. 0 ч.',
       formattedTotal: '0 рабочих часов',
       isLessThanOneHour: false,
       isValid: true,
@@ -145,16 +164,19 @@ export function calculateLifeTime(
   const totalWorkingHours = price / hourlyRate;
 
   // Иерархическое разложение по рабочему времени:
-  const years = Math.floor(totalWorkingHours / schedule.hoursPerYear);
-  const remAfterYears = totalWorkingHours - years * schedule.hoursPerYear;
+  let remaining = totalWorkingHours;
 
-  const months = Math.floor(remAfterYears / schedule.hoursPerMonth);
-  const remAfterMonths = remAfterYears - months * schedule.hoursPerMonth;
+  let years = Math.floor(remaining / schedule.hoursPerYear);
+  remaining -= years * schedule.hoursPerYear;
 
-  let days = Math.floor(remAfterMonths / schedule.hoursPerDay);
-  const remAfterDays = remAfterMonths - days * schedule.hoursPerDay;
+  let months = Math.floor(remaining / schedule.hoursPerMonth);
+  remaining -= months * schedule.hoursPerMonth;
 
-  let hours = Math.round(remAfterDays);
+  let days = Math.floor(remaining / schedule.hoursPerDay);
+  remaining -= days * schedule.hoursPerDay;
+
+  let hours = Math.round(remaining);
+  const minutes = Math.round(totalWorkingHours * 60);
 
   // Обработка переноса при округлении часов до полного рабочего дня (8 часов)
   if (hours >= schedule.hoursPerDay) {
@@ -162,19 +184,30 @@ export function calculateLifeTime(
     hours = 0;
   }
 
+  // Защита от переполнения месяцев при округлении (приближение к 2080 ч)
+  if (months >= 12) {
+    years += Math.floor(months / 12);
+    months = months % 12;
+  }
+
   const isLessThanOneHour = years === 0 && months === 0 && days === 0 && hours === 0;
+  const fullFormatted = `${years} г. ${months} мес. ${days} дн. ${hours} ч.`;
 
   // Сборка составной строки
   let formatted = '';
   if (isLessThanOneHour) {
-    formatted = '< 1 ч.';
+    if (showMinutesForSubHour && minutes > 0) {
+      formatted = `${minutes} мин. (< 1 ч.)`;
+    } else {
+      formatted = '< 1 ч.';
+    }
   } else {
     const parts: string[] = [];
     if (years > 0) parts.push(`${years} г.`);
     if (months > 0) parts.push(`${months} мес.`);
     if (days > 0) parts.push(`${days} дн.`);
     if (hours > 0) parts.push(`${hours} ч.`);
-    formatted = parts.join(' ');
+    formatted = parts.length > 0 ? parts.join(' ') : '0 ч.';
   }
 
   const formattedTotal = pluralizeHours(totalWorkingHours);
@@ -184,8 +217,10 @@ export function calculateLifeTime(
     months,
     days,
     hours,
+    minutes,
     totalWorkingHours,
-    formatted,
+    formatted: compact ? formatted : fullFormatted,
+    fullFormatted,
     formattedTotal,
     isLessThanOneHour,
     isValid: true,
