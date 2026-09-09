@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price to Life — UI Prototype (Issue #5)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --app-bg: #f8fafc;
+      --m3-primary: #1d4ed8;
+      --m3-primary-container: #dbeafe;
+      --m3-on-primary-container: #1e3a8a;
+      --m3-surface: #ffffff;
+      --m3-surface-variant: #f1f5f9;
+      --m3-outline: #94a3b8;
+      --m3-text: #0f172a;
+      --m3-text-muted: #64748b;
+      --m3-error: #dc2626;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 100px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      max-width: 600px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: #1e293b;
+      color: #60a5fa;
+      border: 1px solid #334155;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    p.sub {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    /* Device Mockup Frame */
+    .device-wrapper {
+      position: relative;
+      width: 390px;
+      height: 780px;
+      background: #000;
+      border-radius: 46px;
+      padding: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 2px #334155;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .device-screen {
+      position: relative;
+      flex: 1;
+      background: var(--app-bg);
+      border-radius: 36px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      color: var(--m3-text);
+    }
+
+    /* Android Status Bar & Safe Area */
+    .status-bar {
+      height: 28px;
+      padding: 0 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #334155;
+      background: transparent;
+      z-index: 10;
+    }
+
+    .status-bar-icons {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-bar-pill {
+      height: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: transparent;
+    }
+
+    .nav-bar-pill::after {
+      content: '';
+      width: 72px;
+      height: 4px;
+      background: #94a3b8;
+      border-radius: 9999px;
+    }
+
+    /* Appbar */
+    .appbar {
+      height: 56px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--m3-surface);
+      border-bottom: 1px solid #e2e8f0;
+      z-index: 5;
+    }
+
+    .appbar-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--m3-text);
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--m3-text);
+      font-size: 18px;
+      transition: background 0.15s;
+    }
+
+    .icon-btn:hover {
+      background: #e2e8f0;
+    }
+
+    /* Screen Container */
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 50;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-end;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-sheet {
+      background: var(--m3-surface);
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      max-height: 90%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Common Components */
+    .card {
+      background: var(--m3-surface);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      border: 1px solid #e2e8f0;
+    }
+
+    .text-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .text-input-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--m3-text-muted);
+    }
+
+    .styled-input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 10px;
+      border: 1.5px solid var(--m3-outline);
+      outline: none;
+      background: var(--m3-surface);
+      color: var(--m3-text);
+      transition: border-color 0.15s;
+    }
+
+    .styled-input:focus {
+      border-color: var(--m3-primary);
+    }
+
+    .btn-primary {
+      background: var(--m3-primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary:active {
+      opacity: 0.85;
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+    }
+
+    .segmented {
+      display: flex;
+      background: var(--m3-surface-variant);
+      padding: 4px;
+      border-radius: 10px;
+      gap: 4px;
+    }
+
+    .seg-item {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--m3-text-muted);
+      text-align: center;
+    }
+
+    .seg-item.active {
+      background: white;
+      color: var(--m3-primary);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    /* ====================================================================== */
+    /* VARIANT A: Classic Card-centric Material 3 */
+    /* ====================================================================== */
+    .variant-a .income-badge {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--m3-surface-variant);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+
+    .variant-a .result-card {
+      text-align: center;
+      padding: 24px 16px;
+    }
+
+    .variant-a .result-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--m3-primary);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .variant-a .big-time {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--m3-text);
+      margin-bottom: 4px;
+    }
+
+    .variant-a .sub-time {
+      font-size: 13px;
+      color: var(--m3-text-muted);
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .variant-a .grid-breakdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 14px;
+    }
+
+    .variant-a .grid-box {
+      background: var(--m3-surface-variant);
+      border-radius: 8px;
+      padding: 8px 4px;
+      text-align: center;
+    }
+
+    .variant-a .grid-val {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .variant-a .grid-lbl {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--m3-text-muted);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip-btn {
+      background: var(--m3-surface);
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* ====================================================================== */
+    /* VARIANT B: Hero Display & Chips */
+    /* ====================================================================== */
+    .variant-b .hero-block {
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      color: white;
+      border-radius: 20px;
+      padding: 24px 18px;
+      text-align: center;
+      box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+    }
+
+    .variant-b .hero-tag {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.85;
+      font-weight: 600;
+    }
+
+    .variant-b .hero-main {
+      font-size: 34px;
+      font-weight: 900;
+      margin: 8px 0 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .variant-b .hero-sub {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .variant-b .chips-hero {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .variant-b .hero-unit {
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      padding: 6px 2px;
+      backdrop-filter: blur(4px);
+    }
+
+    .variant-b .hero-unit-val {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .variant-b .hero-unit-lbl {
+      font-size: 9px;
+      opacity: 0.8;
+      text-transform: uppercase;
+    }
+
+    /* ====================================================================== */
+    /* VARIANT C: Compact Split / Life Dashboard */
+    /* ====================================================================== */
+    .variant-c .progress-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .variant-c .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--m3-text-muted);
+      margin-bottom: 6px;
+    }
+
+    .variant-c .progress-bar-bg {
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .variant-c .progress-bar-fill {
+      height: 100%;
+      background: #10b981;
+      border-radius: 9999px;
+      transition: width 0.3s;
+    }
+
+    .variant-c .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .variant-c .preset-card {
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .variant-c .preset-name {
+      font-size: 12px;
+      color: var(--m3-text-muted);
+    }
+
+    .variant-c .preset-price {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* ====================================================================== */
+    /* Floating Prototype Switcher Bar */
+    /* ====================================================================== */
+    .floating-switcher {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      border: 1px solid #334155;
+      padding: 8px 14px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+    }
+
+    .switcher-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: white;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .switcher-btn:hover {
+      background: #334155;
+    }
+
+    .switcher-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e2e8f0;
+      min-width: 220px;
+      text-align: center;
+    }
+
+    .first-launch-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Wayfinder UI Prototype • Issue #5</div>
+  <h1>Исследование экранов интерфейса (React Native Paper)</h1>
+  <p class="sub">3 радикально разных варианта компоновки экрана Конвертера и модального окна Настроек</p>
+  
+  <div class="first-launch-toggle">
+    <label style="cursor: pointer;">
+      <input type="checkbox" id="chkFirstLaunch"> Симулировать первый запуск (First Launch)
+    </label>
+  </div>
+</header>
+
+<!-- Mobile Device Frame -->
+<div class="device-wrapper">
+  <div class="device-screen">
+    <!-- Android Status Bar -->
+    <div class="status-bar">
+      <span>12:30</span>
+      <div class="status-bar-icons">LTE 98%</div>
+    </div>
+
+    <!-- Appbar Header -->
+    <div class="appbar">
+      <div class="appbar-title">Price to Life</div>
+      <button class="icon-btn" id="btnOpenSettings" title="Настройки дохода">⚙️</button>
+    </div>
+
+    <!-- Screen Dynamic Content -->
+    <div class="screen-content" id="screenContent">
+      <!-- Injected by JS based on variant -->
+    </div>
+
+    <!-- Modal Settings Sheet -->
+    <div class="modal-overlay" id="modalSettings">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <strong id="modalTitle">Настройки дохода</strong>
+          <button class="icon-btn" id="btnCloseModal">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Android Navigation Pill -->
+    <div class="nav-bar-pill"></div>
+  </div>
+</div>
+
+<!-- Floating Switcher Bar (per prototype/UI.md) -->
+<div class="floating-switcher">
+  <button class="switcher-btn" id="prevVariant" title="Предыдущий вариант (влево)">◀</button>
+  <div class="switcher-label" id="variantLabel">A: Карточный Material 3</div>
+  <button class="switcher-btn" id="nextVariant" title="Следующий вариант (вправо)">▶</button>
+</div>
+
+<script>
+/**
+ * UI PROTOTYPE LOGIC & VARIANTS
+ */
+const VARIANTS = [
+  { id: 'A', name: 'A: Карточный Material 3' },
+  { id: 'B', name: 'B: Hero-дисплей и быстрые чипы' },
+  { id: 'C', name: 'C: Компактный сплит-калькулятор' },
+];
+
+let currentVariantIndex = 0;
+
+// Application State
+const appState = {
+  income: 150000,
+  period: 'month',
+  price: 45000,
+  isFirstLaunch: false,
+};
+
+const WorkSchedule = {
+  HOURS_PER_DAY: 8,
+  HOURS_PER_WEEK: 40,
+  HOURS_PER_MONTH: 173.33,
+  HOURS_PER_YEAR: 2080,
+};
+
+function getHourlyRate() {
+  if (appState.income <= 0) return 0;
+  const map = {
+    hour: 1,
+    day: WorkSchedule.HOURS_PER_DAY,
+    week: WorkSchedule.HOURS_PER_WEEK,
+    month: WorkSchedule.HOURS_PER_MONTH,
+    year: WorkSchedule.HOURS_PER_YEAR,
+  };
+  return appState.income / map[appState.period];
+}
+
+function calculateConversion() {
+  const rate = getHourlyRate();
+  if (rate <= 0 || appState.price <= 0) {
+    return {
+      years: 0, months: 0, days: 0, hours: 0, totalHours: 0,
+      formatted: appState.price === 0 ? '0 ч.' : '—',
+      totalFormatted: appState.price === 0 ? '0 рабочих часов' : '—',
+    };
+  }
+
+  const totalHours = appState.price / rate;
+  let remaining = totalHours;
+
+  let years = Math.floor(remaining / WorkSchedule.HOURS_PER_YEAR);
+  remaining -= years * WorkSchedule.HOURS_PER_YEAR;
+
+  let months = Math.floor(remaining / WorkSchedule.HOURS_PER_MONTH);
+  remaining -= months * WorkSchedule.HOURS_PER_MONTH;
+
+  let days = Math.floor(remaining / WorkSchedule.HOURS_PER_DAY);
+  remaining -= days * WorkSchedule.HOURS_PER_DAY;
+
+  let hours = Math.round(remaining);
+  if (hours >= WorkSchedule.HOURS_PER_DAY) {
+    days += 1;
+    hours = 0;
+  }
+  if (months >= 12) {
+    years += Math.floor(months / 12);
+    months = months % 12;
+  }
+
+  const isSubHour = years === 0 && months === 0 && days === 0 && hours === 0;
+  let formatted = '';
+  if (isSubHour) {
+    const mins = Math.round(totalHours * 60);
+    formatted = `${mins} мин. (< 1 ч.)`;
+  } else {
+    const parts = [];
+    if (years > 0) parts.push(`${years} г.`);
+    if (months > 0) parts.push(`${months} мес.`);
+    if (days > 0) parts.push(`${days} дн.`);
+    if (hours > 0) parts.push(`${hours} ч.`);
+    formatted = parts.join(' ');
+  }
+
+  return {
+    years, months, days, hours, totalHours,
+    formatted,
+    totalFormatted: `${Math.round(totalHours).toLocaleString('ru-RU')} рабочих часов`,
+  };
+}
+
+// Rendering Variants
+function renderConverter() {
+  const container = document.getElementById('screenContent');
+  const variant = VARIANTS[currentVariantIndex].id;
+  const rate = getHourlyRate();
+  const conv = calculateConversion();
+
+  if (variant === 'A') {
+    container.className = 'screen-content variant-a';
+    container.innerHTML = `
+      <div class="income-badge">
+        <div>
+          <div style="font-size:11px; color:var(--m3-text-muted);">Ваш доход (${appState.period === 'month' ? 'в месяц' : appState.period}):</div>
+          <strong>${appState.income.toLocaleString('ru-RU')} ₽</strong>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px; color:var(--m3-text-muted);">Ставка:</div>
+          <strong style="color:var(--m3-primary);">${Math.round(rate).toLocaleString('ru-RU')} ₽/ч</strong>
+        </div>
+      </div>
+
+      <div class="text-input-group">
+        <label>Цена покупки</label>
+        <input type="number" class="styled-input" id="valPrice" value="${appState.price}" placeholder="0">
+      </div>
+
+      <div class="chip-row">
+        <button class="chip-btn" data-add="1000">+1 000</button>
+        <button class="chip-btn" data-add="5000">+5 000</button>
+        <button class="chip-btn" data-add="10000">+10 000</button>
+        <button class="chip-btn" data-add="50000">+50 000</button>
+      </div>
+
+      <div class="card result-card">
+        <div class="result-tag">Эквивалент рабочего времени</div>
+        <div class="big-time">${conv.formatted}</div>
+        <div class="sub-time">${conv.totalFormatted}</div>
+
+        <div class="grid-breakdown">
+          <div class="grid-box"><div class="grid-val">${conv.years}</div><div class="grid-lbl">годы</div></div>
+          <div class="grid-box"><div class="grid-val">${conv.months}</div><div class="grid-lbl">мес.</div></div>
+          <div class="grid-box"><div class="grid-val">${conv.days}</div><div class="grid-lbl">дни</div></div>
+          <div class="grid-box"><div class="grid-val">${conv.hours}</div><div class="grid-lbl">часы</div></div>
+        </div>
+      </div>
+    `;
+  } else if (variant === 'B') {
+    container.className = 'screen-content variant-b';
+    container.innerHTML = `
+      <div class="hero-block">
+        <div class="hero-tag">Стоимость в вашей жизни</div>
+        <div class="hero-main">${conv.formatted}</div>
+        <div class="hero-sub">${conv.totalFormatted}</div>
+
+        <div class="chips-hero">
+          <div class="hero-unit"><div class="hero-unit-val">${conv.years}</div><div class="hero-unit-lbl">лет</div></div>
+          <div class="hero-unit"><div class="hero-unit-val">${conv.months}</div><div class="hero-unit-lbl">мес</div></div>
+          <div class="hero-unit"><div class="hero-unit-val">${conv.days}</div><div class="hero-unit-lbl">дней</div></div>
+          <div class="hero-unit"><div class="hero-unit-val">${conv.hours}</div><div class="hero-unit-lbl">часов</div></div>
+        </div>
+      </div>
+
+      <div class="text-input-group">
+        <label>Введите стоимость покупки:</label>
+        <input type="number" class="styled-input" id="valPrice" value="${appState.price}">
+      </div>
+
+      <div class="chip-row">
+        <button class="chip-btn" data-set="350">☕ 350</button>
+        <button class="chip-btn" data-set="4500">🍕 4 500</button>
+        <button class="chip-btn" data-set="85000">📱 85 000</button>
+        <button class="chip-btn" data-set="2500000">🚗 2.5М</button>
+      </div>
+
+      <div class="card" style="font-size:13px; color:var(--m3-text-muted);">
+        💡 При ставке <strong>${Math.round(rate).toLocaleString('ru-RU')} ₽/ч</strong> вы отдаете за эту покупку <strong>${(conv.totalHours / WorkSchedule.HOURS_PER_MONTH * 100).toFixed(1)}%</strong> от вашего рабочего месяца.
+      </div>
+    `;
+  } else if (variant === 'C') {
+    container.className = 'screen-content variant-c';
+    const percentMonth = Math.min(100, (conv.totalHours / WorkSchedule.HOURS_PER_MONTH * 100)).toFixed(1);
+    container.innerHTML = `
+      <div class="progress-card">
+        <div class="progress-header">
+          <span>Трудозатраты от месяца (173.3ч)</span>
+          <span>${percentMonth}%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: ${percentMonth}%;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline;">
+          <div style="font-size:24px; font-weight:800;">${conv.formatted}</div>
+          <div style="font-size:12px; color:var(--m3-text-muted);">${conv.totalFormatted}</div>
+        </div>
+      </div>
+
+      <div class="text-input-group">
+        <label>Стоимость покупки</label>
+        <input type="number" class="styled-input" id="valPrice" value="${appState.price}" style="font-size:22px; text-align:center;">
+      </div>
+
+      <div style="font-size:12px; font-weight:600; color:var(--m3-text-muted);">Быстрые типовые покупки:</div>
+      <div class="preset-grid">
+        <div class="preset-card" data-set="350">
+          <div class="preset-name">Кофе и круассан</div>
+          <div class="preset-price">350 ₽</div>
+        </div>
+        <div class="preset-card" data-set="4500">
+          <div class="preset-name">Ужин на двоих</div>
+          <div class="preset-price">4 500 ₽</div>
+        </div>
+        <div class="preset-card" data-set="85000">
+          <div class="preset-name">Новый смартфон</div>
+          <div class="preset-price">85 000 ₽</div>
+        </div>
+        <div class="preset-card" data-set="250000">
+          <div class="preset-name">Отпуск на море</div>
+          <div class="preset-price">250 000 ₽</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Hook Price Input
+  const priceInput = document.getElementById('valPrice');
+  if (priceInput) {
+    priceInput.addEventListener('input', (e) => {
+      appState.price = parseInt(e.target.value, 10) || 0;
+      renderConverter();
+    });
+  }
+
+  // Hook Quick Buttons
+  container.querySelectorAll('[data-add]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      appState.price += parseInt(btn.dataset.add, 10);
+      renderConverter();
+    });
+  });
+
+  container.querySelectorAll('[data-set]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      appState.price = parseInt(btn.dataset.set, 10);
+      renderConverter();
+    });
+  });
+}
+
+function renderModal() {
+  const modalBody = document.getElementById('modalBody');
+  const closeBtn = document.getElementById('btnCloseModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const rate = getHourlyRate();
+
+  modalTitle.textContent = appState.isFirstLaunch ? 'Первоначальная настройка' : 'Настройки дохода';
+  closeBtn.style.display = appState.isFirstLaunch ? 'none' : 'flex';
+
+  modalBody.innerHTML = `
+    ${appState.isFirstLaunch ? `
+      <div style="background:var(--m3-primary-container); color:var(--m3-on-primary-container); padding:12px 14px; border-radius:12px; font-size:13px;">
+        👋 <strong>Добро пожаловать в Price to Life!</strong><br>
+        Укажите ваш чистый доход («на руки»), чтобы начать переводить любые покупки в реальное время жизни.
+      </div>
+    ` : ''}
+
+    <div class="text-input-group">
+      <label>Доход «на руки» (Net):</label>
+      <input type="number" class="styled-input" id="inputModalIncome" value="${appState.income}" placeholder="Например, 150000">
+    </div>
+
+    <div class="text-input-group">
+      <label>Период начисления дохода:</label>
+      <div class="segmented" id="modalPeriodGroup">
+        <button class="seg-item ${appState.period === 'hour' ? 'active' : ''}" data-p="hour">Час</button>
+        <button class="seg-item ${appState.period === 'day' ? 'active' : ''}" data-p="day">День</button>
+        <button class="seg-item ${appState.period === 'week' ? 'active' : ''}" data-p="week">Нед</button>
+        <button class="seg-item ${appState.period === 'month' ? 'active' : ''}" data-p="month">Мес</button>
+        <button class="seg-item ${appState.period === 'year' ? 'active' : ''}" data-p="year">Год</button>
+      </div>
+    </div>
+
+    <div style="background:var(--m3-surface-variant); padding:14px; border-radius:12px; text-align:center;">
+      <div style="font-size:11px; color:var(--m3-text-muted); text-transform:uppercase; font-weight:700;">Ваша расчетная ставка</div>
+      <div style="font-size:22px; font-weight:800; color:var(--m3-primary); margin:4px 0;">
+        ${rate > 0 ? `${Math.round(rate).toLocaleString('ru-RU')} ₽/ч` : '—'}
+      </div>
+      <div style="font-size:11px; color:var(--m3-text-muted);">
+        Константы: 8 ч/день, 40 ч/нед, 173.33 ч/мес, 2080 ч/год
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btnSaveModal" ${appState.income <= 0 ? 'disabled' : ''}>
+      ${appState.isFirstLaunch ? 'Сохранить и начать' : 'Сохранить изменения'}
+    </button>
+  `;
+
+  document.getElementById('inputModalIncome').addEventListener('input', (e) => {
+    appState.income = parseInt(e.target.value, 10) || 0;
+    renderModal();
+  });
+
+  document.getElementById('modalPeriodGroup').addEventListener('click', (e) => {
+    const btn = e.target.closest('.seg-item');
+    if (btn) {
+      appState.period = btn.dataset.p;
+      renderModal();
+    }
+  });
+
+  document.getElementById('btnSaveModal').addEventListener('click', () => {
+    if (appState.income <= 0) return;
+    appState.isFirstLaunch = false;
+    document.getElementById('chkFirstLaunch').checked = false;
+    document.getElementById('modalSettings').classList.remove('active');
+    renderConverter();
+  });
+}
+
+// Switcher Controls
+function setVariant(index) {
+  currentVariantIndex = (index + VARIANTS.length) % VARIANTS.length;
+  document.getElementById('variantLabel').textContent = VARIANTS[currentVariantIndex].name;
+  renderConverter();
+}
+
+document.getElementById('prevVariant').addEventListener('click', () => setVariant(currentVariantIndex - 1));
+document.getElementById('nextVariant').addEventListener('click', () => setVariant(currentVariantIndex + 1));
+
+// Keyboard arrow controls for switcher
+document.addEventListener('keydown', (e) => {
+  if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+  if (e.key === 'ArrowLeft') setVariant(currentVariantIndex - 1);
+  if (e.key === 'ArrowRight') setVariant(currentVariantIndex + 1);
+});
+
+// Modal Toggles
+document.getElementById('btnOpenSettings').addEventListener('click', () => {
+  renderModal();
+  document.getElementById('modalSettings').classList.add('active');
+});
+
+document.getElementById('btnCloseModal').addEventListener('click', () => {
+  if (appState.isFirstLaunch) return; // Prevent closing on first launch
+  document.getElementById('modalSettings').classList.remove('active');
+});
+
+document.getElementById('chkFirstLaunch').addEventListener('change', (e) => {
+  appState.isFirstLaunch = e.target.checked;
+  if (appState.isFirstLaunch) {
+    appState.income = 0;
+    renderModal();
+    document.getElementById('modalSettings').classList.add('active');
+  } else {
+    appState.income = 150000;
+    document.getElementById('modalSettings').classList.remove('active');
+  }
+  renderConverter();
+});
+
+// Initial Render
+setVariant(0);
+</script>
+</body>
+</html>
