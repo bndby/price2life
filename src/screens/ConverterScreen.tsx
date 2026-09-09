@@ -11,22 +11,29 @@ import {
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { calculateLifeTime } from '../core/calculator';
 import { useIncome } from '../storage/IncomeProvider';
+import { useAppLocale } from '../storage/LocaleProvider';
 import { digitsOnly, formatGroupedInteger, parseIntegerDigits } from './integerField';
 import type { ConverterScreenNavigationProp } from './types';
 
 export function ConverterScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const navigation = useNavigation<ConverterScreenNavigationProp>();
   const { hourlyRate, isConfigured } = useIncome();
+  const { numberLocale } = useAppLocale();
   const [rawPrice, setRawPrice] = useState('');
 
   const price = useMemo(() => parseIntegerDigits(rawPrice), [rawPrice]);
-  const conversion = useMemo(() => calculateLifeTime(price, hourlyRate), [price, hourlyRate]);
+  const conversion = useMemo(
+    () => calculateLifeTime(price, hourlyRate),
+    [price, hourlyRate, numberLocale],
+  );
 
   const resultText = isConfigured ? conversion.formatted : '—';
-  const totalText = isConfigured ? conversion.formattedTotal : 'Доход не задан';
+  const totalText = isConfigured ? conversion.formattedTotal : t('converter.incomeNotSet');
 
   return (
     <SafeAreaView
@@ -34,11 +41,11 @@ export function ConverterScreen() {
       edges={['left', 'right', 'bottom']}
     >
       <Appbar.Header mode="center-aligned">
-        <Appbar.Content title="Price to Life" titleStyle={{ fontWeight: '700' }} testID="converter-title" />
+        <Appbar.Content title={t('brand')} titleStyle={{ fontWeight: '700' }} testID="converter-title" />
         <Appbar.Action
           icon="cog"
           onPress={() => navigation.navigate('Settings', isConfigured ? undefined : { isFirstLaunch: true })}
-          accessibilityLabel="Открыть настройки"
+          accessibilityLabel={t('converter.openSettings')}
         />
       </Appbar.Header>
 
@@ -47,12 +54,12 @@ export function ConverterScreen() {
           <Card style={[styles.heroCard, { backgroundColor: theme.colors.elevation.level2 }]} mode="elevated">
             <Card.Content>
               <Text variant="labelMedium" style={{ color: theme.colors.outline, textTransform: 'uppercase' }}>
-                Эквивалент рабочего времени
+                {t('converter.lifeTimeEquivalent')}
               </Text>
               <Text
                 variant="headlineLarge"
                 style={[styles.heroDisplay, { color: conversion.isValid ? theme.colors.primary : theme.colors.error }]}
-                accessibilityLabel={`Эквивалент ${resultText}`}
+                accessibilityLabel={t('converter.lifeTimeEquivalentA11y', { value: resultText })}
                 testID="life-time-equivalent"
               >
                 {resultText}
@@ -69,20 +76,26 @@ export function ConverterScreen() {
 
           <View style={styles.inputSection}>
             <TextInput
-              label="Цена покупки"
-              value={formatGroupedInteger(rawPrice)}
+              label={t('converter.itemPrice')}
+              value={formatGroupedInteger(rawPrice, numberLocale)}
               onChangeText={(text) => setRawPrice(digitsOnly(text))}
               keyboardType="number-pad"
               mode="outlined"
               placeholder="0"
-              accessibilityLabel="Цена покупки"
-              right={rawPrice ? <TextInput.Icon icon="close-circle" onPress={() => setRawPrice('')} accessibilityLabel="Очистить цену" /> : null}
+              accessibilityLabel={t('converter.itemPrice')}
+              right={
+                rawPrice ? (
+                  <TextInput.Icon
+                    icon="close-circle"
+                    onPress={() => setRawPrice('')}
+                    accessibilityLabel={t('converter.clearPrice')}
+                  />
+                ) : null
+              }
               style={styles.priceInput}
             />
             <HelperText type={!isConfigured ? 'error' : 'info'} visible>
-              {!isConfigured
-                ? 'Сначала укажите доход в настройках'
-                : 'Введите стоимость товара или услуги (целое число)'}
+              {!isConfigured ? t('converter.setIncomeFirst') : t('converter.enterItemPrice')}
             </HelperText>
           </View>
         </ScrollView>

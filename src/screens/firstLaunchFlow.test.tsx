@@ -2,9 +2,23 @@ import { DeviceEventEmitter } from 'react-native';
 import { render, screen, userEvent } from '@testing-library/react-native';
 import App from '../../App';
 import { InMemoryStorageDriver, IncomeStorageService } from '../storage/incomeStorage';
+import { LocaleStorageService } from '../storage/localeStorage';
 
-async function renderApp(service = new IncomeStorageService(new InMemoryStorageDriver())) {
-  await render(<App service={service} />);
+async function renderApp(
+  service = new IncomeStorageService(new InMemoryStorageDriver()),
+  options: {
+    localeService?: LocaleStorageService;
+    getDeviceLanguageTags?: () => readonly string[];
+  } = {},
+) {
+  const localeService = options.localeService ?? new LocaleStorageService(new InMemoryStorageDriver());
+  await render(
+    <App
+      service={service}
+      localeService={localeService}
+      getDeviceLanguageTags={options.getDeviceLanguageTags ?? (() => ['ru-RU'])}
+    />,
+  );
 }
 
 describe('first launch flow', () => {

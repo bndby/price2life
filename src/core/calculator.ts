@@ -1,7 +1,4 @@
-/**
- * Price to Life Core Calculator
- * Чистые функции перевода дохода в часовую ставку и цены покупки в составной эквивалент рабочего времени жизни.
- */
+import { getLifeTimeI18n, type LifeTimeI18n } from '../i18n/lifeTimeI18n';
 
 export type IncomePeriod = 'hour' | 'day' | 'week' | 'month' | 'year';
 
@@ -71,28 +68,22 @@ export function calculateHourlyRate(
 }
 
 /**
- * Склонение существительного «рабочий час» в русском языке.
+ * Склонение / плюрализация «рабочего часа» по текущему App Locale.
  */
-export function pluralizeHours(count: number): string {
+export function pluralizeHours(count: number, copy: LifeTimeI18n = getLifeTimeI18n()): string {
   if (count > 0 && count < 1) {
     const minutes = Math.round(count * 60);
-    return `${count.toFixed(1)} рабочих часа (${minutes} мин.)`;
+    return copy.t('lifeTime.fractionalWorkingHours', {
+      hours: count.toFixed(1),
+      minutes,
+    });
   }
 
   const absCount = Math.abs(Math.round(count));
-  const mod100 = absCount % 100;
-  const mod10 = absCount % 10;
-
-  if (mod100 >= 11 && mod100 <= 19) {
-    return `${absCount.toLocaleString('ru-RU')} рабочих часов`;
-  }
-  if (mod10 === 1) {
-    return `${absCount.toLocaleString('ru-RU')} рабочий час`;
-  }
-  if (mod10 >= 2 && mod10 <= 4) {
-    return `${absCount.toLocaleString('ru-RU')} рабочих часа`;
-  }
-  return `${absCount.toLocaleString('ru-RU')} рабочих часов`;
+  return copy.t('lifeTime.workingHours', {
+    count: absCount,
+    formattedCount: absCount.toLocaleString(copy.numberLocale),
+  });
 }
 
 /**
@@ -106,7 +97,8 @@ export function calculateLifeTime(
   price: number,
   hourlyRate: number,
   options: ConversionOptions = {},
-  schedule: WorkScheduleConfig = DEFAULT_WORK_SCHEDULE
+  schedule: WorkScheduleConfig = DEFAULT_WORK_SCHEDULE,
+  copy: LifeTimeI18n = getLifeTimeI18n(),
 ): ConversionResult {
   const compact = options.compact !== false;
   const showMinutesForSubHour = options.showMinutesForSubHour === true;
@@ -124,7 +116,7 @@ export function calculateLifeTime(
       formattedTotal: '—',
       isLessThanOneHour: false,
       isValid: false,
-      errorMessage: 'Необходимо указать положительный доход в настройках',
+      errorMessage: copy.t('lifeTime.missingIncome'),
     };
   }
 
@@ -141,7 +133,7 @@ export function calculateLifeTime(
       formattedTotal: '—',
       isLessThanOneHour: false,
       isValid: false,
-      errorMessage: 'Цена должна быть неотрицательным числом',
+      errorMessage: copy.t('lifeTime.invalidPrice'),
     };
   }
 
@@ -153,9 +145,12 @@ export function calculateLifeTime(
       hours: 0,
       minutes: 0,
       totalWorkingHours: 0,
-      formatted: '0 ч.',
-      fullFormatted: '0 г. 0 мес. 0 дн. 0 ч.',
-      formattedTotal: '0 рабочих часов',
+      formatted: copy.t('lifeTime.hoursAbbr', { count: 0 }),
+      fullFormatted: copy.t('lifeTime.full', { years: 0, months: 0, days: 0, hours: 0 }),
+      formattedTotal: copy.t('lifeTime.workingHours', {
+        count: 0,
+        formattedCount: (0).toLocaleString(copy.numberLocale),
+      }),
       isLessThanOneHour: false,
       isValid: true,
     };
@@ -191,28 +186,28 @@ export function calculateLifeTime(
   }
 
   const isLessThanOneHour = years === 0 && months === 0 && days === 0 && hours === 0;
-  const fullFormatted = `${years} г. ${months} мес. ${days} дн. ${hours} ч.`;
+  const fullFormatted = copy.t('lifeTime.full', { years, months, days, hours });
 
   // Сборка составной строки
   let formatted = '';
   if (isLessThanOneHour) {
     if (showMinutesForSubHour && minutes > 0) {
-      formatted = `${minutes} мин. (< 1 ч.)`;
+      formatted = copy.t('lifeTime.minutesLessThanHour', { minutes });
     } else {
-      formatted = '< 1 ч.';
+      formatted = copy.t('lifeTime.lessThanOneHour');
     }
   } else {
     const parts: string[] = [];
-    if (years > 0) parts.push(`${years} г.`);
-    if (months > 0) parts.push(`${months} мес.`);
-    if (days > 0) parts.push(`${days} дн.`);
-    if (hours > 0) parts.push(`${hours} ч.`);
-    formatted = parts.length > 0 ? parts.join(' ') : '0 ч.';
+    if (years > 0) parts.push(copy.t('lifeTime.yearsAbbr', { count: years }));
+    if (months > 0) parts.push(copy.t('lifeTime.monthsAbbr', { count: months }));
+    if (days > 0) parts.push(copy.t('lifeTime.daysAbbr', { count: days }));
+    if (hours > 0) parts.push(copy.t('lifeTime.hoursAbbr', { count: hours }));
+    formatted = parts.length > 0 ? parts.join(' ') : copy.t('lifeTime.hoursAbbr', { count: 0 });
   }
 
   const formattedTotal = isLessThanOneHour
-    ? '< 1 рабочего часа'
-    : pluralizeHours(totalWorkingHours);
+    ? copy.t('lifeTime.lessThanOneWorkingHour')
+    : pluralizeHours(totalWorkingHours, copy);
 
   return {
     years,

@@ -1,3 +1,4 @@
+import i18n from '../i18n/i18n';
 import {
   calculateHourlyRate,
   calculateLifeTime,
@@ -107,5 +108,19 @@ describe('calculateLifeTime', () => {
       hoursPerYear: 2080,
       hoursPerMonth: 173.33,
     });
+  });
+
+  test('formats the same breakdown in English and Simplified Chinese', async () => {
+    const hourlyRate = calculateHourlyRate(150000, 'month');
+
+    await i18n.changeLanguage('en');
+    const english = calculateLifeTime(25000, hourlyRate);
+    expect(english.formatted).toBe('3 d 5 h');
+    expect(normalizeSpaces(english.formattedTotal)).toBe('29 working hours');
+
+    await i18n.changeLanguage('zh-Hans');
+    const chinese = calculateLifeTime(25000, hourlyRate);
+    expect(chinese.formatted).toBe('3 天 5 小时');
+    expect(normalizeSpaces(chinese.formattedTotal)).toBe('29 个工时');
   });
 });

@@ -21,6 +21,13 @@
       },
       "predictiveBackGestureEnabled": false
     },
-    "plugins": []
+    "plugins": [
+      [
+        "expo-localization",
+        {
+          "supportedLocales": ["ru", "en", "zh-Hans"]
+        }
+      ]
+    ]
   }
 }

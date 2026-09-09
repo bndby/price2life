@@ -7,10 +7,10 @@ export function parseIntegerDigits(digits: string): number {
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
-export function formatGroupedInteger(digits: string): string {
+export function formatGroupedInteger(digits: string, numberLocale = 'ru-RU'): string {
   if (!digits) {
     return '';
   }
-  return Number(digits).toLocaleString('ru-RU');
+  return Number(digits).toLocaleString(numberLocale);
 }
 
