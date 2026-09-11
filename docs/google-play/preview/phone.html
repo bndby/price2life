@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <title>Life to Price Play screenshot</title>
+  <style>
+    @font-face {
+      font-family: "Noto Sans";
+      src: local("Noto Sans"), local("NotoSans"), local("Noto Sans CJK SC"), local("Noto Sans CJK");
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: #FFFBFE;
+      color: #1C1B1F;
+      font-family: "Noto Sans", "Noto Sans CJK SC", "Noto Sans SC", Roboto, sans-serif;
+    }
+    .phone { width: 1080px; height: 1920px; display: flex; flex-direction: column; background: #FFFBFE; }
+    .status {
+      height: 72px;
+      padding: 0 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 22px;
+      font-weight: 600;
+      color: #1C1B1F;
+    }
+    .appbar {
+      height: 112px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 0 16px;
+    }
+    .appbar-title { font-size: 34px; font-weight: 700; letter-spacing: 0.2px; }
+    .appbar-action {
+      position: absolute;
+      right: 24px;
+      width: 72px;
+      height: 72px;
+      border: 0;
+      background: transparent;
+      color: #1C1B1F;
+      font-size: 36px;
+    }
+    .appbar-action.left { right: auto; left: 24px; font-size: 44px; }
+    .content { flex: 1; padding: 28px 36px 48px; overflow: hidden; }
+    .card {
+      background: rgb(243, 237, 246);
+      border-radius: 32px;
+      padding: 36px 32px 32px;
+      margin-bottom: 36px;
+    }
+    .card.level1 { background: rgb(247, 243, 249); border-radius: 24px; }
+    .label {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #79747E;
+    }
+    .hero { font-size: 72px; font-weight: 800; color: #6750A4; margin: 20px 0 24px; line-height: 1.05; }
+    .pills { display: flex; flex-wrap: wrap; gap: 16px; }
+    .pill {
+      background: #EADDFF;
+      color: #21005D;
+      font-weight: 700;
+      font-size: 22px;
+      padding: 10px 24px;
+      border-radius: 32px;
+    }
+    .pill.secondary { background: #E8DEF8; color: #1D192B; }
+    .field { margin: 12px 0 8px; }
+    .field-label {
+      font-size: 18px;
+      color: #6750A4;
+      margin: 0 0 8px 8px;
+    }
+    .outlined {
+      border: 2px solid #79747E;
+      border-radius: 8px;
+      min-height: 88px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      font-size: 32px;
+      background: #FFFBFE;
+    }
+    .outlined .value { flex: 1; }
+    .hint { color: #79747E; font-size: 20px; margin: 8px 8px 20px; }
+    .section { font-size: 28px; font-weight: 700; margin: 20px 0 12px; }
+    .welcome {
+      background: #EADDFF;
+      color: #21005D;
+      border-radius: 24px;
+      padding: 28px;
+      margin-bottom: 28px;
+    }
+    .welcome h2 { margin: 0; font-size: 30px; }
+    .welcome p { margin: 10px 0 0; font-size: 24px; line-height: 1.35; }
+    .segments { display: flex; gap: 0; margin: 12px 0 20px; }
+    .seg {
+      flex: 1;
+      text-align: center;
+      padding: 18px 6px;
+      border: 2px solid #79747E;
+      font-size: 22px;
+      font-weight: 600;
+      background: #FFFBFE;
+    }
+    .seg:first-child { border-radius: 24px 0 0 24px; }
+    .seg:last-child { border-radius: 0 24px 24px 0; }
+    .seg + .seg { border-left: 0; }
+    .seg.on { background: #E8DEF8; color: #1D192B; }
+    .rate { font-size: 48px; font-weight: 800; color: #6750A4; margin: 10px 0 8px; }
+    .small { font-size: 20px; color: #79747E; line-height: 1.35; }
+    .dob { display: flex; gap: 16px; }
+    .dob .outlined { flex: 1; font-size: 28px; }
+    .dob .year { flex: 1.4; }
+    .btn {
+      margin-top: 28px;
+      background: #6750A4;
+      color: #fff;
+      border: 0;
+      border-radius: 16px;
+      width: 100%;
+      padding: 28px;
+      font-size: 26px;
+      font-weight: 600;
+    }
+    .life-preview {
+      margin-top: 20px;
+      background: rgb(247, 243, 249);
+      border-radius: 24px;
+      padding: 24px 28px;
+      color: #79747E;
+      font-size: 24px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone" id="root"></div>
+  <script>
+    const COPY = {
+      ru: {
+        brand: "Life❤️to💵Price",
+        time: "12:30",
+        converterLabel: "Эквивалент рабочего времени",
+        hoursSmall: "29 рабочих часов",
+        hoursLarge: "1 733 рабочих часа",
+        share: "0,03% оставшейся жизни",
+        resultSmall: "3 дн. 5 ч.",
+        resultLarge: "10 мес.",
+        price: "Цена покупки",
+        priceSmall: "25 000",
+        priceLarge: "1 500 000",
+        hint: "Введите стоимость товара или услуги (целое число)",
+        firstTitle: "Первоначальная настройка",
+        incomeTitle: "Настройки дохода",
+        welcomeTitle: "Добро пожаловать в Life❤️to💵Price",
+        welcomeBody: "Укажите ваш доход, чтобы начать переводить цены в рабочее время. Данные остаются только на этом устройстве.",
+        language: "Язык",
+        languageValue: "Русский",
+        incomeAmount: "Сумма дохода",
+        netIncome: "Доход «на руки»",
+        incomeValue: "150 000",
+        incomeHint: "Только целое положительное число (без копеек и валюты)",
+        period: "Период получения",
+        periods: ["Час", "День", "Нед.", "Месяц", "Год"],
+        hourlyRate: "Расчётная часовая ставка",
+        perHour: "865 / час",
+        schedule: "Стандартный график: 8 ч/день, 40 ч/неделю, 2080 ч/год (~173.33 ч/мес).",
+        dob: "Дата рождения",
+        day: "День",
+        month: "Месяц",
+        year: "Год",
+        sex: "Пол",
+        male: "Муж",
+        female: "Жен",
+        remaining: "Остаток жизни ≈ 43 года",
+        save: "Сохранить доход",
+      },
+      en: {
+        brand: "Life❤️to💵Price",
+        time: "12:30",
+        converterLabel: "Working time equivalent",
+        hoursSmall: "29 working hours",
+        hoursLarge: "1,733 working hours",
+        share: "0.03% of remaining life",
+        resultSmall: "3 d 5 h",
+        resultLarge: "10 mo",
+        price: "Item price",
+        priceSmall: "25,000",
+        priceLarge: "1,500,000",
+        hint: "Enter the price of a product or service (whole number)",
+        firstTitle: "Initial setup",
+        incomeTitle: "Income settings",
+        welcomeTitle: "Welcome to Life❤️to💵Price",
+        welcomeBody: "Enter your income to start converting prices into working time. Data stays on this device only.",
+        language: "Language",
+        languageValue: "English",
+        incomeAmount: "Income amount",
+        netIncome: "Take-home income",
+        incomeValue: "150,000",
+        incomeHint: "Positive whole number only (no cents or currency)",
+        period: "Income period",
+        periods: ["Hour", "Day", "Wk", "Month", "Year"],
+        hourlyRate: "Estimated hourly rate",
+        perHour: "865 / hour",
+        schedule: "Standard schedule: 8 h/day, 40 h/week, 2080 h/year (~173.33 h/month).",
+        dob: "Date of birth",
+        day: "Day",
+        month: "Month",
+        year: "Year",
+        sex: "Sex",
+        male: "Male",
+        female: "Female",
+        remaining: "Remaining life ≈ 43 years",
+        save: "Save income",
+      },
+      "zh-Hans": {
+        brand: "Life❤️to💵Price",
+        time: "12:30",
+        converterLabel: "工作时间当量",
+        hoursSmall: "29 个工时",
+        hoursLarge: "1,733 个工时",
+        share: "0.03% 剩余寿命",
+        resultSmall: "3 天 5 小时",
+        resultLarge: "10 个月",
+        price: "购买价格",
+        priceSmall: "25,000",
+        priceLarge: "1,500,000",
+        hint: "输入商品或服务的价格（整数）",
+        firstTitle: "初始设置",
+        incomeTitle: "收入设置",
+        welcomeTitle: "欢迎使用 Life❤️to💵Price",
+        welcomeBody: "请填写收入，以便将价格换算为工作时间。数据仅保存在本设备上。",
+        language: "语言",
+        languageValue: "中文",
+        incomeAmount: "收入金额",
+        netIncome: "实得收入",
+        incomeValue: "150,000",
+        incomeHint: "仅限正整数（不含小数和货币符号）",
+        period: "收入周期",
+        periods: ["时", "日", "周", "月", "年"],
+        hourlyRate: "折算小时工资",
+        perHour: "865 / 小时",
+        schedule: "标准工时：每天 8 小时、每周 40 小时、每年 2080 小时（约每月 173.33 小时）。",
+        dob: "出生日期",
+        day: "日",
+        month: "月",
+        year: "年",
+        sex: "性别",
+        male: "男",
+        female: "女",
+        remaining: "剩余寿命 ≈ 43 年",
+        save: "保存收入",
+      },
+    };
+
+    const params = new URLSearchParams(location.search);
+    const locale = COPY[params.get("locale")] ? params.get("locale") : "en";
+    const scene = params.get("scene") || "converter";
+    const t = COPY[locale];
+    document.documentElement.lang = locale === "zh-Hans" ? "zh-CN" : locale;
+
+    function statusBar() {
+      return `<div class="status"><span>${t.time}</span><span>LTE  98%</span></div>`;
+    }
+    function appbar(title, extras = "") {
+      return `<div class="appbar">${extras}<div class="appbar-title">${title}</div></div>`;
+    }
+    function field(label, value) {
+      return `<div class="field"><div class="field-label">${label}</div><div class="outlined"><span class="value">${value}</span></div></div>`;
+    }
+    function segments(selected) {
+      return `<div class="segments">${t.periods.map((label, i) =>
+        `<div class="seg${i === selected ? " on" : ""}">${label}</div>`
+      ).join("")}</div>`;
+    }
+
+    function converter(kind) {
+      const large = kind === "large";
+      return `
+        ${statusBar()}
+        ${appbar(t.brand, `<button class="appbar-action" aria-hidden="true">⚙</button>`)}
+        <div class="content">
+          <div class="card">
+            <div class="label">${t.converterLabel}</div>
+            <div class="hero">${large ? t.resultLarge : t.resultSmall}</div>
+            <div class="pills">
+              <div class="pill">${large ? t.hoursLarge : t.hoursSmall}</div>
+            </div>
+            ${large ? "" : `<div class="pills" style="margin-top:16px"><div class="pill secondary">${t.share}</div></div>`}
+          </div>
+          ${field(t.price, large ? t.priceLarge : t.priceSmall)}
+          <div class="hint">${t.hint}</div>
+        </div>`;
+    }
+
+    function firstLaunch() {
+      return `
+        ${statusBar()}
+        ${appbar(t.firstTitle)}
+        <div class="content">
+          <div class="welcome"><h2>${t.welcomeTitle}</h2><p>${t.welcomeBody}</p></div>
+          ${field(t.language, t.languageValue)}
+          <div class="section">${t.incomeAmount}</div>
+          ${field(t.netIncome, t.incomeValue)}
+          <div class="hint">${t.incomeHint}</div>
+          <div class="section">${t.period}</div>
+          ${segments(3)}
+          <div class="card level1">
+            <div class="label">${t.hourlyRate}</div>
+            <div class="rate">${t.perHour}</div>
+            <div class="small">${t.schedule}</div>
+          </div>
+        </div>`;
+    }
+
+    function settingsPerson() {
+      return `
+        ${statusBar()}
+        ${appbar(t.incomeTitle, `<button class="appbar-action left" aria-hidden="true">×</button>`)}
+        <div class="content">
+          ${field(t.language, t.languageValue)}
+          <div class="section">${t.incomeAmount}</div>
+          ${field(t.netIncome, t.incomeValue)}
+          <div class="section">${t.period}</div>
+          ${segments(3)}
+          <div class="section">${t.dob}</div>
+          <div class="dob">
+            <div class="outlined"><span class="value">10</span></div>
+            <div class="outlined"><span class="value">9</span></div>
+            <div class="outlined year"><span class="value">1996</span></div>
+          </div>
+          <div class="section">${t.sex}</div>
+          <div class="segments">
+            <div class="seg on">${t.male}</div>
+            <div class="seg">${t.female}</div>
+          </div>
+          <div class="life-preview">${t.remaining}</div>
+          <button class="btn">${t.save}</button>
+        </div>`;
+    }
+
+    const scenes = {
+      converter: () => converter("small"),
+      "converter-large": () => converter("large"),
+      "first-launch": firstLaunch,
+      "settings-person": settingsPerson,
+    };
+    document.getElementById("root").innerHTML = (scenes[scene] || scenes.converter)();
+  </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+Google Play locale: English (United States) — en-US
+Default language: yes (Play Console default)
+
+=== App name (max 30) ===
+Life to Price
+
+=== Short description (max 80) ===
+Convert a price into working time from your take-home income.
+
+=== Full description (max 4000) ===
+Life to Price turns an item price into working time, using the take-home income you enter.
+
+Set your income and the period it covers: hour, day, week, month, or year. The app derives an hourly rate from a standard work schedule (8 hours a day, 40 hours a week, 2080 hours a year). Type a price and see the life time equivalent in years, months, days, and hours, plus the total working hours.
+
+Optionally add your date of birth and sex. The app then estimates remaining life from WHO period life tables and shows life share: that working time as a percent of remaining life.
+
+Numbers stay on this device. There is no account, and conversion does not require a network request.
+
+Languages: English, Russian, and Simplified Chinese, or follow the device language.
+
+The app does not connect to a bank, convert currencies, or store cents. Income and prices are whole numbers.
+
+=== Graphics alt text (max 140 each) ===
+Icon: Split heart, wine on the left for remaining life and forest green on the right for item price.
+Feature graphic: 25,000 converts to 3 days 5 hours of working time.
+Screenshot 01: Converter showing 25,000 as 3 days 5 hours and 0.03% of remaining life.
+Screenshot 02: Converter showing 1,500,000 as 10 months of working time.
+Screenshot 03: First-launch income setup with welcome text and take-home income.
+Screenshot 04: Income settings with date of birth, sex, and remaining life of about 43 years.
