@@ -11,7 +11,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
-SRC_ICON = ROOT / "assets" / "icon.png"
+SRC_ICON = ROOT / "assets" / "android-icon-foreground.png"
 OUT = Path(__file__).resolve().parent / "graphics"
 SHOTS = Path(__file__).resolve().parent / "screenshots" / "phone"
 PREVIEW = Path(__file__).resolve().parent / "preview" / "phone.html"
