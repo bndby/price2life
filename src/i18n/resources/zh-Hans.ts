@@ -53,6 +53,7 @@ export const zhHans = {
     incompletePerson: '请同时填写出生日期和性别，或都留空',
     systemLanguage: '系统语言',
     systemLanguageWithResolved: '{{system}} · {{resolved}}',
+    privacyPolicy: '隐私政策',
   },
   lifeTime: {
     missingIncome: '请在设置中填写正数收入',

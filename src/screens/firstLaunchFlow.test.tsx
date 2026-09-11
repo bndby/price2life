@@ -36,6 +36,7 @@ describe('first launch flow', () => {
       await screen.findByText(/Укажите ваш доход, чтобы начать переводить цены в рабочее время/),
     ).toBeOnTheScreen();
     expect(screen.getByText(/Данные остаются только на этом устройстве/)).toBeOnTheScreen();
+    expect(screen.getByLabelText('Политика конфиденциальности')).toBeOnTheScreen();
     expect(screen.queryByLabelText('Закрыть настройки')).toBeNull();
     expect(screen.getByTestId('settings-title')).toHaveTextContent('Первоначальная настройка');
   });

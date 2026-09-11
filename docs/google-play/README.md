@@ -9,7 +9,7 @@
 ```
 docs/google-play/
   README.md
-  console.md                          ← категория, Data safety, рейтинг
+  console.md                          ← категория, Data safety, рейтинг, URL политики
   listing/en-US.txt                   ← язык по умолчанию
   listing/ru-RU.txt
   listing/zh-CN.txt
@@ -37,7 +37,7 @@ docs/google-play/
 4. Иконка — одна на все языки: `graphics/icon-512.png`.
 5. Feature graphic и 4 скриншота телефона — из папки соответствующей локали (для en-US — `feature-graphic-en-US.png` и `screenshots/phone/en-US/`).
 6. Alt-текст — блоки в конце каждого `listing/*.txt`.
-7. Категория, Data safety, контакт и политика — `console.md`.
+7. Категория, Data safety, контакт — `console.md`. Политика: https://bndby.github.io/price2life/ (исходник `docs/privacy/`; публикуется GitHub Pages с `master`).
 
 Пересборка графики и скриншотов (нужны Python Pillow и Chrome/Chromium):
 

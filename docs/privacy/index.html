@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy Policy — Life to Price</title>
+  <meta name="description" content="Privacy policy for the Life to Price Android app. Data stays on the device. No account, no analytics, no network for conversion." />
+  <link rel="canonical" href="https://bndby.github.io/price2life/" />
+  <style>
+    :root {
+      --bg: #fffbfe;
+      --fg: #1c1b1f;
+      --muted: #49454f;
+      --line: #e7e0ec;
+      --accent: #6750a4;
+      --chip: #eaddff;
+      --chip-fg: #21005d;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans SC", sans-serif;
+      line-height: 1.55;
+    }
+    body { max-width: 44rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    header { margin-bottom: 1.75rem; }
+    .app {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 0.35rem;
+    }
+    h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 0.5rem; }
+    .meta { color: var(--muted); font-size: 0.95rem; margin: 0; }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0 0;
+    }
+    nav button {
+      border: 0;
+      background: var(--chip);
+      color: var(--chip-fg);
+      font: inherit;
+      font-weight: 700;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    nav button[aria-pressed="true"] { outline: 2px solid var(--accent); }
+    h2 { font-size: 1.15rem; margin: 1.75rem 0 0.5rem; }
+    p, li { color: var(--fg); }
+    ul { padding-left: 1.2rem; }
+    a { color: var(--accent); }
+    .panel {
+      background: #f7f2fa;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      margin: 1rem 0;
+    }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="app">Life to Price · by.bnd.life2price</p>
+    <h1 id="page-title">Privacy Policy</h1>
+    <p class="meta" id="updated">Last updated: 11 September 2026</p>
+    <nav aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">English</button>
+      <button type="button" data-lang="ru" aria-pressed="false">Русский</button>
+      <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+    </nav>
+  </header>
+
+  <article id="en" lang="en">
+    <div class="panel">
+      <p><strong>Life to Price</strong> does not collect, transmit, or share your data. Income, optional date of birth and sex, and language preference stay on this device. There is no account and no server for conversion.</p>
+    </div>
+    <h2>Who we are</h2>
+    <p>This policy applies to the Android app <strong>Life to Price</strong> (package <code>by.bnd.life2price</code>), published by Yury Bandarenka.</p>
+    <p>Questions: <a href="https://github.com/bndby/price2life/issues">GitHub issues</a> or the developer site <a href="https://bnd.by/">bnd.by</a>.</p>
+    <h2>Data the app accesses and stores on the device</h2>
+    <p>The app does not send this data off the device. It is stored locally (Android app storage / AsyncStorage) so conversion still works after you close the app:</p>
+    <ul>
+      <li><strong>Take-home income</strong> and <strong>income period</strong> (hour, day, week, month, or year) — to derive an hourly rate and convert an item price into working time.</li>
+      <li><strong>Date of birth</strong> and <strong>sex</strong> — optional. Used only with bundled WHO period life tables to estimate remaining life and life share. Sex here is biological sex for those tables, not a social profile.</li>
+      <li><strong>App language</strong> — optional. If you pick a language instead of following the device, that choice is stored so the interface stays in Russian, English, or Simplified Chinese.</li>
+    </ul>
+    <p>An item price you type on the converter is not saved. WHO life tables are shipped inside the app; they are not downloaded when you convert a price.</p>
+    <h2>What we do not do</h2>
+    <ul>
+      <li>No account, sign-in, or cloud backup of your numbers.</li>
+      <li>No advertising, analytics, crash reporters, or tracking SDKs.</li>
+      <li>No sale or sharing of personal data. The developer has no copy of your income or date of birth.</li>
+      <li>No bank, payment, or currency APIs. Income and prices are whole numbers you enter yourself.</li>
+    </ul>
+    <p>The Android package may include a network permission as a platform default. Conversion does not require a network request, and this app does not upload your data to the developer.</p>
+    <p>Google Play and Android may collect their own install or diagnostic data under Google’s policies. That is not performed by Life to Price.</p>
+    <h2>Security</h2>
+    <p>Because data never leaves the device for this app, there is no transmission to encrypt. Storage is the ordinary private app storage on your phone. Anyone with the unlocked device can open the app and see the values you entered.</p>
+    <h2>Retention and deletion</h2>
+    <p>Data remains until you change it, clear the app’s storage, or uninstall Life to Price. There is no account, so no web account-deletion form.</p>
+    <ul>
+      <li>Change income, date of birth, sex, or language in Settings. Clearing date of birth and sex and saving removes the optional person data.</li>
+      <li>Android Settings → Apps → Life to Price → Storage → Clear data removes everything the app stored.</li>
+      <li>Uninstalling the app deletes that local storage.</li>
+    </ul>
+    <h2>Children</h2>
+    <p>Life to Price is not directed at children. It does not knowingly store data from children. Remaining-life estimates are an adult personal-finance aid, not a social or health service for minors.</p>
+    <h2>Changes</h2>
+    <p>If how the app handles data changes, this page will be updated and the date above will change. The current policy is always at this URL.</p>
+  </article>
+
+  <article id="ru" lang="ru" hidden>
+    <div class="panel">
+      <p><strong>Life to Price</strong> не собирает, не передаёт и не раскрывает ваши данные. Доход, необязательные дата рождения и пол, а также язык остаются на этом устройстве. Аккаунта нет, для расчёта сервер не нужен.</p>
+    </div>
+    <h2>Кто мы</h2>
+    <p>Эта политика относится к Android-приложению <strong>Life to Price</strong> (пакет <code>by.bnd.life2price</code>), которое публикует Юрий Бондаренко.</p>
+    <p>Вопросы: <a href="https://github.com/bndby/price2life/issues">issues на GitHub</a> или сайт разработчика <a href="https://bnd.by/">bnd.by</a>.</p>
+    <h2>Какие данные приложение читает и хранит на устройстве</h2>
+    <p>Эти данные не уходят с устройства. Они лежат в локальном хранилище приложения (AsyncStorage), чтобы расчёт работал после закрытия:</p>
+    <ul>
+      <li><strong>Доход «на руки»</strong> и <strong>период дохода</strong> (час, день, неделя, месяц или год) — чтобы получить часовую ставку и перевести цену покупки в рабочее время.</li>
+      <li><strong>Дата рождения</strong> и <strong>пол</strong> — по желанию. Нужны только вместе с встроенными period-таблицами ВОЗ, чтобы оценить остаток жизни и долю жизни. Пол здесь биологический, для таблиц дожития, а не социальный профиль.</li>
+      <li><strong>Язык интерфейса</strong> — по желанию. Если выбрать язык вместо языка системы, выбор сохраняется: русский, английский или упрощённый китайский.</li>
+    </ul>
+    <p>Цену на экране конвертера приложение не запоминает. Таблицы ВОЗ входят в сборку и при расчёте не скачиваются.</p>
+    <h2>Чего нет</h2>
+    <ul>
+      <li>Нет аккаунта, входа и облачной копии ваших цифр.</li>
+      <li>Нет рекламы, аналитики, сборщиков сбоев и трекинговых SDK.</li>
+      <li>Нет продажи и передачи персональных данных. У разработчика нет копии вашего дохода или даты рождения.</li>
+      <li>Нет банка, платежей и валютных API. Доход и цена — целые числа, которые вводите вы.</li>
+    </ul>
+    <p>В пакете Android может быть разрешение на сеть как значение платформы по умолчанию. Для расчёта сеть не нужна, приложение не загружает ваши данные разработчику.</p>
+    <p>Google Play и Android могут собирать свои установочные или диагностические данные по политикам Google. Life to Price этого не делает.</p>
+    <h2>Безопасность</h2>
+    <p>Данные не покидают устройство, шифровать передачу нечего. Хранение — обычное закрытое хранилище приложения. С разблокированного телефона значения, которые вы ввели, видны в приложении.</p>
+    <h2>Срок хранения и удаление</h2>
+    <p>Данные остаются, пока вы их не измените, не очистите хранилище приложения или не удалите Life to Price. Аккаунта нет, веб-формы «удалить аккаунт» тоже нет.</p>
+    <ul>
+      <li>Доход, дату рождения, пол и язык меняют в настройках. Если очистить дату рождения и пол и сохранить — необязательные данные о человеке удаляются.</li>
+      <li>Настройки Android → Приложения → Life to Price → Хранилище → Очистить данные удаляют всё, что сохранило приложение.</li>
+      <li>Удаление приложения стирает это локальное хранилище.</li>
+    </ul>
+    <h2>Дети</h2>
+    <p>Life to Price не предназначено для детей и сознательно не хранит их данные. Оценка остатка жизни — подсказка для взрослых про личные финансы, а не сервис для несовершеннолетних.</p>
+    <h2>Изменения</h2>
+    <p>Если обращение с данными изменится, эта страница и дата выше будут обновлены. Актуальная политика всегда по этому адресу.</p>
+  </article>
+
+  <article id="zh" lang="zh-Hans" hidden>
+    <div class="panel">
+      <p><strong>Life to Price</strong> 不会收集、传输或共享您的数据。收入、可选的出生日期与性别，以及语言偏好仅保存在本设备。没有账户，换算也不需要服务器。</p>
+    </div>
+    <h2>开发者</h2>
+    <p>本政策适用于 Android 应用 <strong>Life to Price</strong>（包名 <code>by.bnd.life2price</code>），发布者为 Yury Bandarenka（尤里·邦达连科）。</p>
+    <p>询问请到 <a href="https://github.com/bndby/price2life/issues">GitHub issues</a> 或开发者网站 <a href="https://bnd.by/">bnd.by</a>。</p>
+    <h2>应用在设备上访问并保存的数据</h2>
+    <p>这些数据不会离开本设备。它们保存在应用的本地存储（AsyncStorage）中，以便关闭应用后仍可换算：</p>
+    <ul>
+      <li><strong>实得收入</strong>和<strong>收入周期</strong>（时、日、周、月或年）——用于得到小时工资，并把购买价格换算为工作时间。</li>
+      <li><strong>出生日期</strong>和<strong>性别</strong>——可选。仅与内置的世卫组织时期寿命表一起，用于估计剩余寿命和生命份额。此处的性别是寿命表所用的生理性别，不是社交资料。</li>
+      <li><strong>界面语言</strong>——可选。若您不跟随系统语言，所选的俄语、英语或简体中文会保存下来。</li>
+    </ul>
+    <p>转换器里输入的价格不会保存。世卫组织寿命表随应用分发，换算时不会下载。</p>
+    <h2>我们不会做的事</h2>
+    <ul>
+      <li>没有账户、登录，也不会把数字备份到云端。</li>
+      <li>没有广告、分析、崩溃上报或追踪 SDK。</li>
+      <li>不出售、不共享个人数据。开发者没有您的收入或出生日期副本。</li>
+      <li>不连接银行、支付或汇率接口。收入和价格是您自己输入的整数。</li>
+    </ul>
+    <p>Android 安装包可能带有平台默认的网络权限。换算不需要网络请求，本应用也不会把您的数据上传给开发者。</p>
+    <p>Google Play 和 Android 可能按 Google 的政策收集其自身的安装或诊断数据。那不是 Life to Price 执行的。</p>
+    <h2>安全</h2>
+    <p>本应用的数据不离开设备，因此没有需要加密的传输。存储为手机上的普通应用私有存储。已解锁设备的人打开应用即可看到您输入的数值。</p>
+    <h2>保存期限与删除</h2>
+    <p>数据会保留到您修改、清除应用存储或卸载 Life to Price 为止。没有账户，因此也没有网上的“删除账户”表格。</p>
+    <ul>
+      <li>在设置中更改收入、出生日期、性别或语言。清空出生日期和性别并保存，即可删除可选的个人信息。</li>
+      <li>Android 设置 → 应用 → Life to Price → 存储 → 清除数据，会删除应用保存的全部内容。</li>
+      <li>卸载应用会删除该本地存储。</li>
+    </ul>
+    <h2>儿童</h2>
+    <p>Life to Price 不以儿童为目标用户，也不会故意保存儿童数据。剩余寿命估计是面向成人的个人理财参考，不是面向未成年人的社交或健康服务。</p>
+    <h2>变更</h2>
+    <p>若应用处理数据的方式发生变化，本页及上方日期将更新。现行政策始终位于此网址。</p>
+  </article>
+
+  <footer>
+    Life to Price · <a href="https://github.com/bndby/price2life">github.com/bndby/price2life</a>
+  </footer>
+
+  <script>
+    const titles = {
+      en: { h1: "Privacy Policy", updated: "Last updated: 11 September 2026", doc: "Privacy Policy — Life to Price" },
+      ru: { h1: "Политика конфиденциальности", updated: "Обновлено: 11 сентября 2026", doc: "Политика конфиденциальности — Life to Price" },
+      zh: { h1: "隐私政策", updated: "最近更新：2026年9月11日", doc: "隐私政策 — Life to Price" },
+    };
+    const articles = {
+      en: document.getElementById("en"),
+      ru: document.getElementById("ru"),
+      zh: document.getElementById("zh"),
+    };
+    const buttons = document.querySelectorAll("nav button");
+    const h1 = document.getElementById("page-title");
+    const updated = document.getElementById("updated");
+
+    function detect() {
+      const params = new URLSearchParams(location.search);
+      const fromQuery = params.get("lang");
+      if (fromQuery && titles[fromQuery]) return fromQuery;
+      const tag = (navigator.language || "en").toLowerCase();
+      if (tag.startsWith("ru")) return "ru";
+      if (tag.startsWith("zh")) return "zh";
+      return "en";
+    }
+
+    function setLang(lang) {
+      const copy = titles[lang] || titles.en;
+      document.documentElement.lang = lang === "zh" ? "zh-Hans" : lang;
+      document.title = copy.doc;
+      h1.textContent = copy.h1;
+      updated.textContent = copy.updated;
+      Object.entries(articles).forEach(([key, node]) => {
+        const show = key === lang;
+        node.hidden = !show;
+        node.setAttribute("aria-hidden", String(!show));
+      });
+      buttons.forEach((button) => {
+        const pressed = button.getAttribute("data-lang") === lang;
+        button.setAttribute("aria-pressed", String(pressed));
+      });
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => setLang(button.getAttribute("data-lang")));
+    });
+    setLang(detect());
+  </script>
+</body>
+</html>

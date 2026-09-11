@@ -56,6 +56,7 @@ export const ru = {
     incompletePerson: 'Укажите дату рождения и пол или оставьте оба поля пустыми',
     systemLanguage: 'Язык системы',
     systemLanguageWithResolved: '{{system}} · {{resolved}}',
+    privacyPolicy: 'Политика конфиденциальности',
   },
   lifeTime: {
     missingIncome: 'Необходимо указать положительный доход в настройках',

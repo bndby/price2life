@@ -54,6 +54,7 @@ export const en = {
     incompletePerson: 'Enter both date of birth and sex, or leave both empty',
     systemLanguage: 'System language',
     systemLanguageWithResolved: '{{system}} · {{resolved}}',
+    privacyPolicy: 'Privacy policy',
   },
   lifeTime: {
     missingIncome: 'Set a positive income in settings',

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, BackHandler } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, BackHandler, Linking } from 'react-native';
 import {
   Appbar,
   TextInput,
@@ -34,6 +34,7 @@ import {
 import { useIncome } from '../storage/IncomeProvider';
 import { usePerson } from '../storage/PersonProvider';
 import { useAppLocale } from '../storage/LocaleProvider';
+import { PRIVACY_POLICY_URL } from '../legal/privacyPolicy';
 import { digitsOnly, formatGroupedInteger, parseIntegerDigits } from './integerField';
 import type { SettingsModalNavigationProp, SettingsModalRouteProp } from './types';
 
@@ -373,6 +374,17 @@ export function SettingsModal() {
         >
           {t('settings.saveIncome')}
         </Button>
+        <Button
+          mode="text"
+          onPress={() => {
+            void Linking.openURL(PRIVACY_POLICY_URL);
+          }}
+          accessibilityLabel={t('settings.privacyPolicy')}
+          testID="settings-privacy-policy"
+          style={styles.privacyBtn}
+        >
+          {t('settings.privacyPolicy')}
+        </Button>
       </ScrollView>
 
       <Portal>
@@ -453,6 +465,9 @@ const styles = StyleSheet.create({
   saveBtn: {
     marginTop: 10,
     borderRadius: 8,
+  },
+  privacyBtn: {
+    marginTop: 8,
   },
   btnContent: {
     paddingVertical: 6,
