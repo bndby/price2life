@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import secrets
 import shutil
 import subprocess
@@ -14,7 +15,9 @@ CRED = ROOT / "credentials"
 KEYSTORE = CRED / "upload.jks"
 PROPS = CRED / "keystore.properties"
 AAB_SRC = ROOT / "android" / "app" / "build" / "outputs" / "bundle" / "release" / "app-release.aab"
-AAB_DEST = Path(__file__).resolve().parent / "aab" / "life2price-1.0.0.aab"
+APP_CONFIG = json.loads((ROOT / "app.json").read_text(encoding="utf-8"))
+VERSION_NAME = APP_CONFIG["expo"]["version"]
+AAB_DEST = Path(__file__).resolve().parent / "aab" / f"life2price-{VERSION_NAME}.aab"
 ALIAS = "upload"
 DNAME = "CN=by.bnd.life2price,OU=bnd,O=bnd,L=Unknown,ST=Unknown,C=RU"
 BUILD_GRADLE = ROOT / "android" / "app" / "build.gradle"

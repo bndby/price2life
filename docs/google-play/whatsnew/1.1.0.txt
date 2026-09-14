@@ -1,0 +1,15 @@
+Google Play «What's new in this release» — 1.1.0 (versionCode 2)
+Limit: 500 Unicode characters per locale, including spaces and line breaks.
+Paste into Test and release → Production → Create new release.
+
+<en-US>
+Date of birth is a system spinner, not typed fields. Settings is a full screen, so the keyboard no longer covers income. Income period is a compact menu. Privacy policy opens from Settings.
+</en-US>
+
+<ru-RU>
+Дата рождения выбирается системным барабаном, а не полями. Настройки открываются на весь экран, клавиатура больше не перекрывает доход. Период дохода — компактное меню. Политика конфиденциальности — из настроек.
+</ru-RU>
+
+<zh-CN>
+出生日期改为系统滚轮，不再手动输入。设置改为全屏，键盘不再挡住收入栏。收入周期为紧凑菜单。可在设置中打开隐私政策。
+</zh-CN>

@@ -9,7 +9,7 @@
 | Package name / applicationId | `by.bnd.life2price` |
 | Имя на устройстве (`expo.name`) | Life to Price |
 | Expo slug | `price2life` (не id приложения) |
-| Версия в репозитории | `1.0.0` |
+| Версия в репозитории | `1.1.0` (`versionCode` 2) |
 | Категория | Finance |
 | Теги | Personal finance, Calculator, Lifestyle |
 | Контактный email | *ваш адрес разработчика* |
@@ -55,3 +55,5 @@
 AAB/APK, подпись, Play App Signing, ответ на Data safety в Console. Это шаги в аккаунте разработчика после `expo prebuild` и сборки Android.
 
 Политика конфиденциальности: страница в `docs/privacy/`, URL после публикации GitHub Pages — https://bndby.github.io/price2life/. В Console: **Policy and programs → App content → Privacy policy**. Та же ссылка открывается из настроек приложения.
+
+Релиз 1.1.0: загрузить `docs/google-play/aab/life2price-1.1.0.aab` и вставить «Что нового» из `whatsnew/1.1.0.txt`.

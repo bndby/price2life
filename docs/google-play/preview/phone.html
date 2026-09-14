@@ -50,6 +50,19 @@
       font-size: 36px;
     }
     .appbar-action.left { right: auto; left: 24px; font-size: 44px; }
+    .income-row { display: flex; gap: 16px; margin-top: 12px; }
+    .income-row .field { flex: 3; margin: 0; }
+    .income-row .field.period { flex: 2; }
+    .privacy {
+      margin-top: 16px;
+      background: transparent;
+      border: 0;
+      color: #6750A4;
+      font-size: 24px;
+      font-weight: 600;
+      padding: 16px 0;
+      width: 100%;
+    }
     .content { flex: 1; padding: 28px 36px 48px; overflow: hidden; }
     .card {
       background: rgb(243, 237, 246);
@@ -120,9 +133,6 @@
     .seg.on { background: #E8DEF8; color: #1D192B; }
     .rate { font-size: 48px; font-weight: 800; color: #6750A4; margin: 10px 0 8px; }
     .small { font-size: 20px; color: #79747E; line-height: 1.35; }
-    .dob { display: flex; gap: 16px; }
-    .dob .outlined { flex: 1; font-size: 28px; }
-    .dob .year { flex: 1.4; }
     .btn {
       margin-top: 28px;
       background: #6750A4;
@@ -168,24 +178,22 @@
         welcomeBody: "Укажите ваш доход, чтобы начать переводить цены в рабочее время. Данные остаются только на этом устройстве.",
         language: "Язык",
         languageValue: "Русский",
-        incomeAmount: "Сумма дохода",
         netIncome: "Доход «на руки»",
         incomeValue: "150 000",
         incomeHint: "Только целое положительное число (без копеек и валюты)",
-        period: "Период получения",
-        periods: ["Час", "День", "Нед.", "Месяц", "Год"],
+        period: "Период",
+        periodValue: "в месяц",
         hourlyRate: "Расчётная часовая ставка",
         perHour: "865 / час",
         schedule: "Стандартный график: 8 ч/день, 40 ч/неделю, 2080 ч/год (~173.33 ч/мес).",
         dob: "Дата рождения",
-        day: "День",
-        month: "Месяц",
-        year: "Год",
+        dobValue: "10 сентября 1996 г.",
         sex: "Пол",
         male: "Муж",
         female: "Жен",
         remaining: "Остаток жизни ≈ 43 года",
         save: "Сохранить доход",
+        privacy: "Политика конфиденциальности",
       },
       en: {
         brand: "Life❤️to💵Price",
@@ -206,24 +214,22 @@
         welcomeBody: "Enter your income to start converting prices into working time. Data stays on this device only.",
         language: "Language",
         languageValue: "English",
-        incomeAmount: "Income amount",
         netIncome: "Take-home income",
         incomeValue: "150,000",
         incomeHint: "Positive whole number only (no cents or currency)",
-        period: "Income period",
-        periods: ["Hour", "Day", "Wk", "Month", "Year"],
+        period: "Period",
+        periodValue: "per month",
         hourlyRate: "Estimated hourly rate",
         perHour: "865 / hour",
         schedule: "Standard schedule: 8 h/day, 40 h/week, 2080 h/year (~173.33 h/month).",
         dob: "Date of birth",
-        day: "Day",
-        month: "Month",
-        year: "Year",
+        dobValue: "September 10, 1996",
         sex: "Sex",
         male: "Male",
         female: "Female",
         remaining: "Remaining life ≈ 43 years",
         save: "Save income",
+        privacy: "Privacy policy",
       },
       "zh-Hans": {
         brand: "Life❤️to💵Price",
@@ -244,24 +250,22 @@
         welcomeBody: "请填写收入，以便将价格换算为工作时间。数据仅保存在本设备上。",
         language: "语言",
         languageValue: "中文",
-        incomeAmount: "收入金额",
         netIncome: "实得收入",
         incomeValue: "150,000",
         incomeHint: "仅限正整数（不含小数和货币符号）",
-        period: "收入周期",
-        periods: ["时", "日", "周", "月", "年"],
+        period: "周期",
+        periodValue: "每月",
         hourlyRate: "折算小时工资",
         perHour: "865 / 小时",
         schedule: "标准工时：每天 8 小时、每周 40 小时、每年 2080 小时（约每月 173.33 小时）。",
         dob: "出生日期",
-        day: "日",
-        month: "月",
-        year: "年",
+        dobValue: "1996年9月10日",
         sex: "性别",
         male: "男",
         female: "女",
         remaining: "剩余寿命 ≈ 43 年",
         save: "保存收入",
+        privacy: "隐私政策",
       },
     };
 
@@ -277,13 +281,11 @@
     function appbar(title, extras = "") {
       return `<div class="appbar">${extras}<div class="appbar-title">${title}</div></div>`;
     }
-    function field(label, value) {
-      return `<div class="field"><div class="field-label">${label}</div><div class="outlined"><span class="value">${value}</span></div></div>`;
+    function field(label, value, extraClass = "") {
+      return `<div class="field${extraClass ? ` ${extraClass}` : ""}"><div class="field-label">${label}</div><div class="outlined"><span class="value">${value}</span></div></div>`;
     }
-    function segments(selected) {
-      return `<div class="segments">${t.periods.map((label, i) =>
-        `<div class="seg${i === selected ? " on" : ""}">${label}</div>`
-      ).join("")}</div>`;
+    function incomeAndPeriod() {
+      return `<div class="income-row">${field(t.netIncome, t.incomeValue)}${field(t.period, t.periodValue, "period")}</div>`;
     }
 
     function converter(kind) {
@@ -312,11 +314,8 @@
         <div class="content">
           <div class="welcome"><h2>${t.welcomeTitle}</h2><p>${t.welcomeBody}</p></div>
           ${field(t.language, t.languageValue)}
-          <div class="section">${t.incomeAmount}</div>
-          ${field(t.netIncome, t.incomeValue)}
+          ${incomeAndPeriod()}
           <div class="hint">${t.incomeHint}</div>
-          <div class="section">${t.period}</div>
-          ${segments(3)}
           <div class="card level1">
             <div class="label">${t.hourlyRate}</div>
             <div class="rate">${t.perHour}</div>
@@ -328,19 +327,12 @@
     function settingsPerson() {
       return `
         ${statusBar()}
-        ${appbar(t.incomeTitle, `<button class="appbar-action left" aria-hidden="true">×</button>`)}
+        ${appbar(t.incomeTitle, `<button class="appbar-action left" aria-hidden="true">←</button>`)}
         <div class="content">
           ${field(t.language, t.languageValue)}
-          <div class="section">${t.incomeAmount}</div>
-          ${field(t.netIncome, t.incomeValue)}
-          <div class="section">${t.period}</div>
-          ${segments(3)}
-          <div class="section">${t.dob}</div>
-          <div class="dob">
-            <div class="outlined"><span class="value">10</span></div>
-            <div class="outlined"><span class="value">9</span></div>
-            <div class="outlined year"><span class="value">1996</span></div>
-          </div>
+          ${incomeAndPeriod()}
+          <div class="hint">${t.incomeHint}</div>
+          ${field(t.dob, t.dobValue)}
           <div class="section">${t.sex}</div>
           <div class="segments">
             <div class="seg on">${t.male}</div>
@@ -348,6 +340,7 @@
           </div>
           <div class="life-preview">${t.remaining}</div>
           <button class="btn">${t.save}</button>
+          <button class="privacy">${t.privacy}</button>
         </div>`;
     }
 

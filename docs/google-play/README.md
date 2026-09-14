@@ -22,7 +22,8 @@ docs/google-play/
                                       /03-first-launch.png
                                       /04-settings-person.png
   preview/phone.html                  ← макеты экранов для пересъёмки
-  aab/life2price-1.0.0.aab            ← signed bundle (gitignored)
+  whatsnew/1.1.0.txt                  ← «Что нового» для Play Console
+  aab/life2price-1.1.0.aab            ← signed bundle (gitignored)
   signing.md                          ← upload-ключ, пересборка
   build_aab.py
 ```
@@ -45,7 +46,9 @@ docs/google-play/
 python docs/google-play/render_assets.py
 ```
 
-AAB: `docs/google-play/aab/life2price-1.0.0.aab`. Ключ загрузки и команды пересборки — `signing.md`. Файл и `credentials/` в git не попадают.
+AAB: `docs/google-play/aab/life2price-1.1.0.aab` (`versionName` 1.1.0 / `versionCode` 2). Ключ загрузки и команды пересборки — `signing.md`. Файл и `credentials/` в git не попадают.
+
+«Что нового» для релиза — `whatsnew/1.1.0.txt` (лимит 500 символов на локаль). В Console: **Test and release → Production → Create new release**.
 
 ## Политика метаданных
 

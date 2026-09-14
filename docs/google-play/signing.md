@@ -18,6 +18,6 @@ JAVA_HOME=/usr/lib/jvm/java-17-openjdk android/gradlew -p android app:bundleRele
 python3 docs/google-play/build_aab.py copy
 ```
 
-Готовый файл: `docs/google-play/aab/life2price-1.0.0.aab`  
+Готовый файл: `docs/google-play/aab/life2price-1.1.0.aab`  
 applicationId: `by.bnd.life2price`  
-versionName `1.0.0` / versionCode `1`
+versionName `1.1.0` / versionCode `2`
