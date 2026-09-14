@@ -14,7 +14,7 @@ export const zhHans = {
     lifeShare: '{{percent}} 剩余寿命',
   },
   settings: {
-    close: '关闭设置',
+    back: '返回',
     firstLaunchTitle: '初始设置',
     incomeTitle: '收入设置',
     welcomeTitle: '欢迎使用 Life❤️to💵Price',

@@ -37,7 +37,7 @@ describe('first launch flow', () => {
     ).toBeOnTheScreen();
     expect(screen.getByText(/Данные остаются только на этом устройстве/)).toBeOnTheScreen();
     expect(screen.getByLabelText('Политика конфиденциальности')).toBeOnTheScreen();
-    expect(screen.queryByLabelText('Закрыть настройки')).toBeNull();
+    expect(screen.queryByLabelText('Назад')).toBeNull();
     expect(screen.getByTestId('settings-title')).toHaveTextContent('Первоначальная настройка');
   });
 
@@ -88,7 +88,7 @@ describe('first launch flow', () => {
     expect(await screen.findByTestId('life-time-equivalent')).toHaveTextContent('3 дн. 5 ч.');
 
     await user.press(screen.getByLabelText('Открыть настройки'));
-    expect(await screen.findByLabelText('Закрыть настройки')).toBeOnTheScreen();
+    expect(await screen.findByLabelText('Назад')).toBeOnTheScreen();
 
     await user.clear(screen.getByLabelText('Доход на руки'));
     await user.type(screen.getByLabelText('Доход на руки'), '300000');

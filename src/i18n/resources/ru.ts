@@ -14,7 +14,7 @@ export const ru = {
     lifeShare: '{{percent}} оставшейся жизни',
   },
   settings: {
-    close: 'Закрыть настройки',
+    back: 'Назад',
     firstLaunchTitle: 'Первоначальная настройка',
     incomeTitle: 'Настройки дохода',
     welcomeTitle: 'Добро пожаловать в Life❤️to💵Price',

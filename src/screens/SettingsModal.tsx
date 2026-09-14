@@ -1,5 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, BackHandler, Linking } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  BackHandler,
+  Keyboard,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+} from 'react-native';
 import {
   Appbar,
   TextInput,
@@ -64,6 +74,9 @@ export function SettingsModal() {
   const [errorMessage, setErrorMessage] = useState('');
   const [snackVisible, setSnackVisible] = useState(false);
   const [languageDialogVisible, setLanguageDialogVisible] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const dobOffsetY = useRef(0);
+  const dobFocused = useRef(false);
 
   const income = useMemo(() => parseIntegerDigits(rawIncome), [rawIncome]);
 
@@ -103,6 +116,31 @@ export function SettingsModal() {
     const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => subscription.remove();
   }, [isFirstLaunch, languageDialogVisible]);
+
+  const scrollDateOfBirthIntoView = useCallback(() => {
+    scrollRef.current?.scrollTo({
+      y: Math.max(0, dobOffsetY.current - 16),
+      animated: true,
+    });
+  }, []);
+
+  useEffect(() => {
+    const shown = Keyboard.addListener('keyboardDidShow', () => {
+      if (dobFocused.current) {
+        scrollDateOfBirthIntoView();
+      }
+    });
+    return () => shown.remove();
+  }, [scrollDateOfBirthIntoView]);
+
+  const handleDobFocus = () => {
+    dobFocused.current = true;
+    scrollDateOfBirthIntoView();
+  };
+
+  const handleDobBlur = () => {
+    dobFocused.current = false;
+  };
 
   const handleSave = async () => {
     if (income <= 0) {
@@ -152,7 +190,7 @@ export function SettingsModal() {
     }
   };
 
-  const handleClose = () => {
+  const handleBack = () => {
     if (isFirstLaunch) {
       setSnackVisible(true);
       return;
@@ -184,7 +222,7 @@ export function SettingsModal() {
     >
       <Appbar.Header mode="center-aligned">
         {!isFirstLaunch && (
-          <Appbar.Action icon="close" onPress={handleClose} accessibilityLabel={t('settings.close')} />
+          <Appbar.BackAction onPress={handleBack} accessibilityLabel={t('settings.back')} />
         )}
         <Appbar.Content
           title={isFirstLaunch ? t('settings.firstLaunchTitle') : t('settings.incomeTitle')}
@@ -193,7 +231,18 @@ export function SettingsModal() {
         />
       </Appbar.Header>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Pressable style={styles.flex} onPress={Keyboard.dismiss} accessible={false}>
+          <ScrollView
+            ref={scrollRef}
+            style={styles.flex}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+          >
         {isFirstLaunch && (
           <Surface style={[styles.welcomeBanner, { backgroundColor: theme.colors.primaryContainer }]} elevation={1}>
             <Text
@@ -287,49 +336,61 @@ export function SettingsModal() {
           </Card.Content>
         </Card>
 
-        <Text variant="titleMedium" style={styles.sectionTitle}>
-          {t('settings.dateOfBirth')}
-        </Text>
-        <View style={styles.dobRow}>
-          <TextInput
-            label={t('settings.dobDay')}
-            value={rawDay}
-            onChangeText={(text) => {
-              setRawDay(digitsOnly(text).slice(0, 2));
-              if (errorMessage) setErrorMessage('');
-            }}
-            keyboardType="number-pad"
-            mode="outlined"
-            accessibilityLabel={t('settings.dobDay')}
-            style={[styles.input, styles.dobField]}
-            testID="settings-dob-day"
-          />
-          <TextInput
-            label={t('settings.dobMonth')}
-            value={rawMonth}
-            onChangeText={(text) => {
-              setRawMonth(digitsOnly(text).slice(0, 2));
-              if (errorMessage) setErrorMessage('');
-            }}
-            keyboardType="number-pad"
-            mode="outlined"
-            accessibilityLabel={t('settings.dobMonth')}
-            style={[styles.input, styles.dobField]}
-            testID="settings-dob-month"
-          />
-          <TextInput
-            label={t('settings.dobYear')}
-            value={rawYear}
-            onChangeText={(text) => {
-              setRawYear(digitsOnly(text).slice(0, 4));
-              if (errorMessage) setErrorMessage('');
-            }}
-            keyboardType="number-pad"
-            mode="outlined"
-            accessibilityLabel={t('settings.dobYear')}
-            style={[styles.input, styles.dobYearField]}
-            testID="settings-dob-year"
-          />
+        <View
+          onLayout={(event) => {
+            dobOffsetY.current = event.nativeEvent.layout.y;
+          }}
+        >
+          <Text variant="titleMedium" style={styles.sectionTitle}>
+            {t('settings.dateOfBirth')}
+          </Text>
+          <View style={styles.dobRow}>
+            <TextInput
+              label={t('settings.dobDay')}
+              value={rawDay}
+              onChangeText={(text) => {
+                setRawDay(digitsOnly(text).slice(0, 2));
+                if (errorMessage) setErrorMessage('');
+              }}
+              onFocus={handleDobFocus}
+              onBlur={handleDobBlur}
+              keyboardType="number-pad"
+              mode="outlined"
+              accessibilityLabel={t('settings.dobDay')}
+              style={[styles.input, styles.dobField]}
+              testID="settings-dob-day"
+            />
+            <TextInput
+              label={t('settings.dobMonth')}
+              value={rawMonth}
+              onChangeText={(text) => {
+                setRawMonth(digitsOnly(text).slice(0, 2));
+                if (errorMessage) setErrorMessage('');
+              }}
+              onFocus={handleDobFocus}
+              onBlur={handleDobBlur}
+              keyboardType="number-pad"
+              mode="outlined"
+              accessibilityLabel={t('settings.dobMonth')}
+              style={[styles.input, styles.dobField]}
+              testID="settings-dob-month"
+            />
+            <TextInput
+              label={t('settings.dobYear')}
+              value={rawYear}
+              onChangeText={(text) => {
+                setRawYear(digitsOnly(text).slice(0, 4));
+                if (errorMessage) setErrorMessage('');
+              }}
+              onFocus={handleDobFocus}
+              onBlur={handleDobBlur}
+              keyboardType="number-pad"
+              mode="outlined"
+              accessibilityLabel={t('settings.dobYear')}
+              style={[styles.input, styles.dobYearField]}
+              testID="settings-dob-year"
+            />
+          </View>
         </View>
 
         <Text variant="titleMedium" style={styles.sectionTitle}>
@@ -385,7 +446,9 @@ export function SettingsModal() {
         >
           {t('settings.privacyPolicy')}
         </Button>
-      </ScrollView>
+          </ScrollView>
+        </Pressable>
+      </KeyboardAvoidingView>
 
       <Portal>
         <Dialog visible={languageDialogVisible} onDismiss={() => setLanguageDialogVisible(false)}>
@@ -423,6 +486,9 @@ export function SettingsModal() {
 
 const styles = StyleSheet.create({
   safeArea: {
+    flex: 1,
+  },
+  flex: {
     flex: 1,
   },
   scrollContent: {

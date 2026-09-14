@@ -72,7 +72,7 @@ export interface IncomeContextState {
 Используется нативный стек React Navigation (`@react-navigation/native-stack`):
 - `RootStack`:
   - `Converter`: базовый экран (конвертер цены в рабочее время).
-  - `Settings`: модальный экран (`presentation: 'modal'`), открываемый поверх `Converter`.
+  - `Settings`: экран стека (`presentation: 'card'`, `animation: 'slide_from_right'`), открываемый поверх `Converter`.
 
 ```typescript
 export type RootStackParamList = {
@@ -99,7 +99,7 @@ export type RootStackParamList = {
                                                      │
                                                      ▼
                                           Автоматическое открытие
-                                          модального экрана `Settings`
+                                          экрана `Settings`
                                           { isFirstLaunch: true }
                                                      │
                                                      ▼
@@ -107,14 +107,14 @@ export type RootStackParamList = {
                                                      │
                                                      ▼
                                           Сохранение в AsyncStorage
-                                          Закрытие модального окна
+                                          Возврат назад по стеку
                                           Переход на `Converter`
 ```
 
 ### 3.3. UX-правила экрана настроек при первом запуске (`isFirstLaunch: true`)
 1. **Заголовок**: отображается приветственный подзаголовок или пояснение: *«Укажите ваш доход, чтобы начать переводить цены в рабочее время»*.
 2. **Блокировка пустого выхода**:
-   - Кнопка закрытия (крестик в шапке модального окна) скрыта при `isFirstLaunch: true`.
+   - Кнопка «Назад» (стрелка в шапке) скрыта при `isFirstLaunch: true`.
    - Аппаратная кнопка «Назад» на Android перехватывается (`BackHandler.addEventListener('hardwareBackPress', ...)`): если доход еще не сохранен, всплывает предупреждающий Snackbar: *«Пожалуйста, укажите доход для продолжения»* (или закрытие блокируется).
 3. **После успешного сохранения**:
    - `saveIncome` выполняет запись, переводит `isConfigured` в `true`.

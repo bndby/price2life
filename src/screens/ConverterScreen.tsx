@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, ScrollView, StyleSheet, Pressable, Keyboard } from 'react-native';
+import { View, ScrollView, StyleSheet, Pressable, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
 import {
   Appbar,
   Card,
@@ -65,8 +65,17 @@ export function ConverterScreen() {
         />
       </Appbar.Header>
 
-      <Pressable style={styles.contentWrapper} onPress={Keyboard.dismiss} accessible={false}>
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Pressable style={styles.contentWrapper} onPress={Keyboard.dismiss} accessible={false}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            style={styles.flex}
+          >
           <Card style={[styles.heroCard, { backgroundColor: theme.colors.elevation.level2 }]} mode="elevated">
             <Card.Content>
               <Text variant="labelMedium" style={{ color: theme.colors.outline, textTransform: 'uppercase' }}>
@@ -131,13 +140,17 @@ export function ConverterScreen() {
             </HelperText>
           </View>
         </ScrollView>
-      </Pressable>
+        </Pressable>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
+    flex: 1,
+  },
+  flex: {
     flex: 1,
   },
   contentWrapper: {

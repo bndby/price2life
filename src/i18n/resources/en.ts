@@ -14,7 +14,7 @@ export const en = {
     lifeShare: '{{percent}} of remaining life',
   },
   settings: {
-    close: 'Close settings',
+    back: 'Back',
     firstLaunchTitle: 'Initial setup',
     incomeTitle: 'Income settings',
     welcomeTitle: 'Welcome to Life❤️to💵Price',

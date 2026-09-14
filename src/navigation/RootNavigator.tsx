@@ -14,9 +14,10 @@ export function RootNavigator() {
         name="Settings"
         component={SettingsModal}
         options={({ route }) => ({
-          presentation: 'modal',
+          // Card, not modal: Android IME can resize the window. See ADR-0005.
+          presentation: 'card',
           gestureEnabled: !route.params?.isFirstLaunch,
-          animation: 'slide_from_bottom',
+          animation: 'slide_from_right',
         })}
       />
     </Stack.Navigator>
