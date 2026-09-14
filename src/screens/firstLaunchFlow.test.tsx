@@ -1,10 +1,26 @@
-import { DeviceEventEmitter } from 'react-native';
+import { DeviceEventEmitter, Platform } from 'react-native';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { render, screen, userEvent, waitFor } from '@testing-library/react-native';
 import App from '../../App';
 import { InMemoryStorageDriver, IncomeStorageService } from '../storage/incomeStorage';
 import { LocaleStorageService } from '../storage/localeStorage';
 import { PersonStorageService } from '../storage/personStorage';
 import type { Clock } from '../storage/PersonProvider';
+
+function pickerOpenParams() {
+  const open = DateTimePickerAndroid.open as jest.Mock;
+  expect(open).toHaveBeenCalled();
+  return open.mock.calls[open.mock.calls.length - 1][0];
+}
+
+function confirmPickerDate(date: Date) {
+  const { onValueChange } = pickerOpenParams();
+  onValueChange({ nativeEvent: { timestamp: date.getTime(), utcOffset: 0 } }, date);
+}
+
+function dismissPicker() {
+  pickerOpenParams().onDismiss();
+}
 
 async function renderApp(
   service = new IncomeStorageService(new InMemoryStorageDriver()),
@@ -123,9 +139,15 @@ describe('first launch flow', () => {
 
     await screen.findByLabelText('Доход на руки');
     await user.type(screen.getByLabelText('Доход на руки'), '150000');
-    await user.type(screen.getByLabelText('День'), '10');
-    await user.type(screen.getByLabelText('Месяц'), '9');
-    await user.type(screen.getByLabelText('Год'), '1996');
+    await user.press(screen.getByTestId('settings-dob-field'));
+    const opened = pickerOpenParams();
+    expect(opened.display).toBe('spinner');
+    expect(opened.mode).toBe('date');
+    expect(opened.value).toEqual(new Date(1996, 8, 10));
+    expect(opened.maximumDate).toEqual(new Date(2026, 8, 10));
+    expect(opened.minimumDate).toEqual(new Date(1906, 8, 10));
+    confirmPickerDate(new Date(1996, 8, 10));
+    expect(await screen.findByLabelText('Дата рождения, 10 сентября 1996 г.')).toBeOnTheScreen();
     await user.press(screen.getByText('Муж'));
 
     expect(await screen.findByTestId('remaining-life-preview')).toHaveTextContent('Остаток жизни ≈ 43 года');
@@ -137,6 +159,40 @@ describe('first launch flow', () => {
     expect(await screen.findByTestId('life-share')).toHaveTextContent('0,03% оставшейся жизни');
   });
 
+  test('cancelling the date picker leaves date of birth empty', async () => {
+    const user = userEvent.setup();
+    await renderApp(new IncomeStorageService(new InMemoryStorageDriver()), {
+      now: () => new Date(2026, 8, 10),
+    });
+
+    await screen.findByLabelText('Дата рождения');
+    await user.press(screen.getByTestId('settings-dob-field'));
+    dismissPicker();
+
+    expect(screen.getByLabelText('Дата рождения')).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Очистить дату рождения')).toBeNull();
+    expect(screen.queryByTestId('remaining-life-preview')).toBeNull();
+  });
+
+  test('clearing date of birth removes the remaining-life preview and does not keep sex coupled', async () => {
+    const user = userEvent.setup();
+    await renderApp(new IncomeStorageService(new InMemoryStorageDriver()), {
+      now: () => new Date(2026, 8, 10),
+    });
+
+    await screen.findByLabelText('Доход на руки');
+    await user.type(screen.getByLabelText('Доход на руки'), '150000');
+    await user.press(screen.getByTestId('settings-dob-field'));
+    confirmPickerDate(new Date(1996, 8, 10));
+    await user.press(screen.getByText('Муж'));
+    expect(await screen.findByTestId('remaining-life-preview')).toBeOnTheScreen();
+
+    await user.press(screen.getByLabelText('Очистить дату рождения'));
+    expect(screen.getByLabelText('Дата рождения')).toBeOnTheScreen();
+    expect(screen.queryByTestId('remaining-life-preview')).toBeNull();
+    expect(screen.getByText('Муж')).toBeOnTheScreen();
+  });
+
   test('a future date of birth is rejected and does not leave settings', async () => {
     const user = userEvent.setup();
     await renderApp(new IncomeStorageService(new InMemoryStorageDriver()), {
@@ -145,9 +201,8 @@ describe('first launch flow', () => {
 
     await screen.findByLabelText('Доход на руки');
     await user.type(screen.getByLabelText('Доход на руки'), '150000');
-    await user.type(screen.getByLabelText('День'), '11');
-    await user.type(screen.getByLabelText('Месяц'), '9');
-    await user.type(screen.getByLabelText('Год'), '2026');
+    await user.press(screen.getByTestId('settings-dob-field'));
+    confirmPickerDate(new Date(2026, 8, 11));
     await user.press(screen.getByText('Муж'));
     await user.press(screen.getByLabelText('Сохранить доход'));
 
@@ -192,5 +247,89 @@ describe('first launch flow', () => {
 
     DeviceEventEmitter.emit('hardwareBackPress');
     expect(await screen.findByText('Пожалуйста, укажите доход для продолжения')).toBeOnTheScreen();
+  });
+});
+
+type MockIosDateTimePicker = typeof DateTimePicker & {
+  latestProps: {
+    value: Date;
+    locale?: string;
+    display?: string;
+    mode?: string;
+    minimumDate?: Date;
+    maximumDate?: Date;
+    onValueChange?: (event: { nativeEvent: { timestamp: number; utcOffset: number } }, date: Date) => void;
+  } | null;
+};
+
+function iosPickerProps() {
+  const props = (DateTimePicker as MockIosDateTimePicker).latestProps;
+  expect(props).not.toBeNull();
+  return props!;
+}
+
+describe('iOS date of birth picker', () => {
+  const originalOS = Platform.OS;
+
+  beforeAll(() => {
+    Object.defineProperty(Platform, 'OS', {
+      configurable: true,
+      get: () => 'ios',
+    });
+  });
+
+  afterAll(() => {
+    Object.defineProperty(Platform, 'OS', {
+      configurable: true,
+      get: () => originalOS,
+    });
+  });
+
+  test('spinner dialog commits only on confirm and does not use the Android opener', async () => {
+    const user = userEvent.setup();
+    await renderApp(new IncomeStorageService(new InMemoryStorageDriver()), {
+      now: () => new Date(2026, 8, 10),
+    });
+
+    await screen.findByLabelText('Дата рождения');
+    await user.press(screen.getByTestId('settings-dob-field'));
+
+    expect(DateTimePickerAndroid.open).not.toHaveBeenCalled();
+    expect(await screen.findByTestId('settings-dob-picker')).toBeOnTheScreen();
+    const opened = iosPickerProps();
+    expect(opened.display).toBe('spinner');
+    expect(opened.mode).toBe('date');
+    expect(opened.locale).toBe('ru-RU');
+    expect(opened.value).toEqual(new Date(1996, 8, 10));
+    expect(opened.maximumDate).toEqual(new Date(2026, 8, 10));
+    expect(opened.minimumDate).toEqual(new Date(1906, 8, 10));
+
+    opened.onValueChange?.(
+      { nativeEvent: { timestamp: new Date(1980, 0, 15).getTime(), utcOffset: 0 } },
+      new Date(1980, 0, 15),
+    );
+    expect(screen.getByLabelText('Дата рождения')).toBeOnTheScreen();
+
+    await user.press(screen.getByTestId('settings-dob-picker-confirm'));
+    expect(await screen.findByLabelText('Дата рождения, 15 января 1980 г.')).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Очистить дату рождения')).toBeOnTheScreen();
+  });
+
+  test('cancel after spinning leaves date of birth empty', async () => {
+    const user = userEvent.setup();
+    await renderApp(new IncomeStorageService(new InMemoryStorageDriver()), {
+      now: () => new Date(2026, 8, 10),
+    });
+
+    await screen.findByLabelText('Дата рождения');
+    await user.press(screen.getByTestId('settings-dob-field'));
+    iosPickerProps().onValueChange?.(
+      { nativeEvent: { timestamp: new Date(1980, 0, 15).getTime(), utcOffset: 0 } },
+      new Date(1980, 0, 15),
+    );
+    await user.press(screen.getByTestId('settings-dob-picker-cancel'));
+
+    expect(screen.getByLabelText('Дата рождения')).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Очистить дату рождения')).toBeNull();
   });
 });

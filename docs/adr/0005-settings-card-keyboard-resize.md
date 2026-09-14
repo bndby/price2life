@@ -4,4 +4,4 @@ Native-stack `presentation: 'modal'` on Android hosts Settings in a transparent 
 
 **Considered Options**: keep the modal sheet and add `react-native-keyboard-controller` (отклонено: лишний нативный модуль, а modal всё равно плохо дружит с IME); `adjustPan` (отклонено: шапка уезжает, внутреннего скролла нет).
 
-**Consequences**: Converter полностью скрыт, пока открыт Settings — это не полупрозрачный sheet. В шапке стрелка назад вместо крестика.
+**Consequences**: Converter полностью скрыт, пока открыт Settings — это не полупрозрачный sheet. В шапке стрелка назад вместо крестика. Date of Birth больше не IME-поле (системный spinner, ADR-0006); `card` + resize остаются из‑за поля дохода и Item Price.

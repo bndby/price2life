@@ -32,7 +32,7 @@
 15. **As a** пользователь, **I want** видеть общее количество рабочих часов с корректным грамматическим склонением («1 рабочий час», «2 рабочих часа», «29 рабочих часов»), **so that** интерфейс выглядел качественно на русском языке.
 16. **As a** пользователь, **I want** при цене покупки менее 30 минут работы видеть отметку «< 1 ч.», **so that** мелкие траты (кофе, проезд) не отображались сбивающим с толку нулем.
 17. **As a** пользователь, **I want** при нулевой цене видеть четкий результат «0 ч.», **so that** не возникало ошибок валидации или неопределенности.
-18. **As a** пользователь, **I want** клавиатуру, которая сжимает окно, а не перекрывает поля, **so that** Date of Birth и Item Price остаются вводимыми, а Life Time Equivalent на конвертере остаётся на экране.
+18. **As a** пользователь, **I want** клавиатуру, которая сжимает окно, а не перекрывает поля, **so that** поле дохода и Item Price остаются вводимыми, а Life Time Equivalent на конвертере остаётся на экране.
 19. **As a** пользователь, **I want** автоматическое скрытие клавиатуры при касании любой свободной области экрана, **so that** можно сразу нажать Sex, Save или увидеть карточку с результатом.
 20. **As a** пользователь, **I want** автоматический пересчет результата конвертера при изменении дохода в настройках, **so that** мне не требовалось повторно вводить цену.
 21. **As a** пользователь, **I want** адаптацию верстки под системный статус-бар и вырезы Android-смартфонов, **so that** элементы управления не наезжали на системные индикаторы.
@@ -48,6 +48,7 @@
 - **UI Kit**: React Native Paper 5.15.3 (Material Design 3 компоненты: `Appbar`, `Card`, `TextInput`, `SegmentedButtons`, `Surface`, `Text`, `HelperText`, `Button`).
 - **Навигация**: `@react-navigation/native-stack` 7.x (`react-native-screens`, `react-native-safe-area-context`).
 - **Персистентность**: `@react-native-async-storage/async-storage` 2.2.0 (через `npx expo install`).
+- **Date of Birth**: `@react-native-community/datetimepicker` 9.1.0 (через `npx expo install`, системный spinner; см. ADR-0006).
 
 ### 4.2. Модель предметной области (Domain Model)
 Сформулирована в `CONTEXT.md`:
@@ -107,8 +108,9 @@ export function calculateLifeTime(
     - Поле дохода «на руки» (Net, целое число) без числового placeholder и outlined-select Income Period справа в одном ряду (`flex` 3:2, `gap: 8`).
     - Select периода: нередактируемый outlined `TextInput` с подписью «Период» / Period / 周期 и значением «в месяц» / per month / 每月; диалог `RadioButton` (час → день → неделя → месяц → год), тот же каркас, что у языка. `SegmentedButtons` остаются только у Sex.
     - Карточка превью часовой ставки в реальном времени.
+    - Date of Birth: нередактируемый outlined `TextInput` (тот же каркас, что у Period и языка), без секционного заголовка. Пустое по умолчанию; выбранная дата — длинная запись в App Locale. Тап открывает нативный spinner `@react-native-community/datetimepicker`: на Android — `DateTimePickerAndroid.open` (`display: 'spinner'`), OK записывает дату, Cancel/Back оставляет поле; на iOS — тот же Paper `Dialog`, что у Period, внутри `UIDatePicker` spinner, подтверждение отдельными Cancel/OK (кручение колёс само поле не пишет). Первое открытие: сегодня − 30 лет; повторное — уже выбранная дата. max = сегодня, min = сегодня − 120 лет. Пусто: `menu-down`; заполнено: `close-circle` очищает только дату (Sex не трогает). См. ADR-0006.
     - Кнопка «Сохранить доход», вызывающая сохранение в AsyncStorage и возврат на Converter.
-    - Клавиатура сжимает окно (`softwareKeyboardLayoutMode: "resize"`); строка Date of Birth доскролливается в видимую область.
+    - Клавиатура сжимает окно (`softwareKeyboardLayoutMode: "resize"`) для дохода; Date of Birth IME не вызывает.
 
 ---
 

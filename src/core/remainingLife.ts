@@ -55,6 +55,38 @@ export function calendarDateFromDate(value: Date): CalendarDate {
   };
 }
 
+export function calendarDateToDate(value: CalendarDate): Date {
+  return new Date(value.year, value.month - 1, value.day);
+}
+
+export const DATE_OF_BIRTH_PICKER_INITIAL_AGE_YEARS = 30;
+export const DATE_OF_BIRTH_PICKER_MAX_AGE_YEARS = 120;
+
+export function shiftCalendarYears(date: CalendarDate, deltaYears: number): CalendarDate {
+  return calendarDateFromDate(new Date(date.year + deltaYears, date.month - 1, date.day));
+}
+
+export function dateOfBirthPickerBounds(today: CalendarDate): {
+  readonly minimumDate: Date;
+  readonly maximumDate: Date;
+} {
+  return {
+    maximumDate: calendarDateToDate(today),
+    minimumDate: calendarDateToDate(shiftCalendarYears(today, -DATE_OF_BIRTH_PICKER_MAX_AGE_YEARS)),
+  };
+}
+
+export function dateOfBirthPickerValue(today: CalendarDate, selected: CalendarDate | null): Date {
+  if (selected && isValidCalendarDate(selected) && !isFutureDate(selected, today)) {
+    return calendarDateToDate(selected);
+  }
+  return calendarDateToDate(shiftCalendarYears(today, -DATE_OF_BIRTH_PICKER_INITIAL_AGE_YEARS));
+}
+
+export function formatCalendarDateLong(date: CalendarDate, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(calendarDateToDate(date));
+}
+
 export function isFutureDate(date: CalendarDate, today: CalendarDate): boolean {
   return compareCalendarDates(date, today) > 0;
 }

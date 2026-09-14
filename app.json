@@ -26,9 +26,14 @@
       [
         "expo-localization",
         {
-          "supportedLocales": ["ru", "en", "zh-Hans"]
+          "supportedLocales": [
+            "ru",
+            "en",
+            "zh-Hans"
+          ]
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ]
   }
 }

@@ -1,0 +1,7 @@
+# Date of Birth is a system spinner, not three fields or a calendar grid
+
+Date of Birth in Settings is one uneditable outlined field (same chrome as Income Period). A month-grid calendar is a poor fit for dates decades ago; three numeric fields caused day/month order confusion and partial fills. Empty means no Date, not today: the picker commits only on confirm, first open lands on today minus 30 years, max is today and min is today minus 120 years. The closed field shows a long date in App Locale.
+
+On Android, tapping the field opens `DateTimePickerAndroid` in `spinner` mode; wheel order and OK/Cancel follow the device locale (ADR-0001 does not change the process locale). On iOS there is no imperative dialog with OK/Cancel: `UIDatePicker` (`display: 'spinner'`) sits in the same Paper `Dialog` as Income Period, with Cancel/OK in App Locale; spinning updates a draft only, confirm writes the field. The iOS `locale` prop follows App Locale (reliable only for spinner). ADR-0005 still forbids a keyboard native module; this picker is a different trade-off (Expo-pinned `@react-native-community/datetimepicker`, needs `prebuild`).
+
+**Considered Options**: month-grid calendar (отклонено: листать до 1996); JS Paper-диалог с тремя колонками (отклонено: те же три поля); Paper-диалог со встроенным нативным spinner на Android (отклонено: модуль всё равно нужен, локаль колёс всё равно устройство).

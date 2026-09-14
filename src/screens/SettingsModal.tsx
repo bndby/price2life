@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -10,6 +10,7 @@ import {
   Linking,
   Platform,
 } from 'react-native';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import {
   Appbar,
   TextInput,
@@ -30,9 +31,14 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { calculateHourlyRate, type IncomePeriod } from '../core/calculator';
 import {
+  calendarDateFromDate,
+  dateOfBirthPickerBounds,
+  dateOfBirthPickerValue,
+  formatCalendarDateLong,
   isFutureDate,
   isValidCalendarDate,
   remainingLifeYears,
+  type CalendarDate,
   type Sex,
 } from '../core/remainingLife';
 import {
@@ -80,32 +86,28 @@ export function SettingsModal() {
 
   const [rawIncome, setRawIncome] = useState(currentIncome > 0 ? String(currentIncome) : '');
   const [period, setPeriod] = useState<IncomePeriod>(currentPeriod || 'month');
-  const [rawDay, setRawDay] = useState(savedDateOfBirth ? String(savedDateOfBirth.day) : '');
-  const [rawMonth, setRawMonth] = useState(savedDateOfBirth ? String(savedDateOfBirth.month) : '');
-  const [rawYear, setRawYear] = useState(savedDateOfBirth ? String(savedDateOfBirth.year) : '');
+  const [draftDateOfBirth, setDraftDateOfBirth] = useState<CalendarDate | null>(savedDateOfBirth);
   const [sex, setSex] = useState<Sex | null>(savedSex);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [snackVisible, setSnackVisible] = useState(false);
   const [languageDialogVisible, setLanguageDialogVisible] = useState(false);
   const [periodDialogVisible, setPeriodDialogVisible] = useState(false);
-  const scrollRef = useRef<ScrollView>(null);
-  const dobOffsetY = useRef(0);
-  const dobFocused = useRef(false);
+  const [iosPickerVisible, setIosPickerVisible] = useState(false);
+  const [iosPickerDraft, setIosPickerDraft] = useState(() =>
+    dateOfBirthPickerValue(today, savedDateOfBirth),
+  );
 
   const income = useMemo(() => parseIntegerDigits(rawIncome), [rawIncome]);
 
   const previewHourlyRate = useMemo(() => calculateHourlyRate(income, period), [income, period]);
 
-  const filledDobCount = [rawDay, rawMonth, rawYear].filter((part) => part.length > 0).length;
-  const draftDateOfBirth =
-    filledDobCount === 3
-      ? {
-          day: parseIntegerDigits(rawDay),
-          month: parseIntegerDigits(rawMonth),
-          year: parseIntegerDigits(rawYear),
-        }
-      : null;
+  const formattedDateOfBirth = draftDateOfBirth
+    ? formatCalendarDateLong(draftDateOfBirth, numberLocale)
+    : '';
+  const dateOfBirthA11y = draftDateOfBirth
+    ? t('settings.dateOfBirthA11y', { value: formattedDateOfBirth })
+    : t('settings.dateOfBirth');
   const previewRemainingLife =
     draftDateOfBirth &&
     sex &&
@@ -136,39 +138,9 @@ export function SettingsModal() {
     return () => subscription.remove();
   }, [isFirstLaunch, languageDialogVisible, periodDialogVisible]);
 
-  const scrollDateOfBirthIntoView = useCallback(() => {
-    scrollRef.current?.scrollTo({
-      y: Math.max(0, dobOffsetY.current - 16),
-      animated: true,
-    });
-  }, []);
-
-  useEffect(() => {
-    const shown = Keyboard.addListener('keyboardDidShow', () => {
-      if (dobFocused.current) {
-        scrollDateOfBirthIntoView();
-      }
-    });
-    return () => shown.remove();
-  }, [scrollDateOfBirthIntoView]);
-
-  const handleDobFocus = () => {
-    dobFocused.current = true;
-    scrollDateOfBirthIntoView();
-  };
-
-  const handleDobBlur = () => {
-    dobFocused.current = false;
-  };
-
   const handleSave = async () => {
     if (income <= 0) {
       setErrorMessage(t('settings.enterPositiveIncome'));
-      return;
-    }
-
-    if (filledDobCount > 0 && filledDobCount < 3) {
-      setErrorMessage(t('settings.incompletePerson'));
       return;
     }
 
@@ -248,6 +220,48 @@ export function SettingsModal() {
     setPeriodDialogVisible(true);
   };
 
+  const commitDateOfBirth = (date: Date) => {
+    setDraftDateOfBirth(calendarDateFromDate(date));
+    setErrorMessage('');
+  };
+
+  const openDateOfBirthPicker = () => {
+    Keyboard.dismiss();
+    const bounds = dateOfBirthPickerBounds(today);
+    const value = dateOfBirthPickerValue(today, draftDateOfBirth);
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        mode: 'date',
+        display: 'spinner',
+        value,
+        minimumDate: bounds.minimumDate,
+        maximumDate: bounds.maximumDate,
+        onValueChange: (_event, date) => {
+          commitDateOfBirth(date);
+        },
+        onDismiss: () => undefined,
+      });
+      return;
+    }
+
+    setIosPickerDraft(value);
+    setIosPickerVisible(true);
+  };
+
+  const dismissIosPicker = () => {
+    setIosPickerVisible(false);
+  };
+
+  const confirmIosPicker = () => {
+    commitDateOfBirth(iosPickerDraft);
+    setIosPickerVisible(false);
+  };
+
+  const clearDateOfBirth = () => {
+    setDraftDateOfBirth(null);
+    setErrorMessage('');
+  };
+
   return (
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: theme.colors.background }]}
@@ -270,7 +284,6 @@ export function SettingsModal() {
       >
         <Pressable style={styles.flex} onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView
-            ref={scrollRef}
             style={styles.flex}
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
@@ -369,61 +382,39 @@ export function SettingsModal() {
           </Card.Content>
         </Card>
 
-        <View
-          onLayout={(event) => {
-            dobOffsetY.current = event.nativeEvent.layout.y;
-          }}
-        >
-          <Text variant="titleMedium" style={styles.sectionTitle}>
-            {t('settings.dateOfBirth')}
-          </Text>
-          <View style={styles.dobRow}>
-            <TextInput
-              label={t('settings.dobDay')}
-              value={rawDay}
-              onChangeText={(text) => {
-                setRawDay(digitsOnly(text).slice(0, 2));
-                if (errorMessage) setErrorMessage('');
-              }}
-              onFocus={handleDobFocus}
-              onBlur={handleDobBlur}
-              keyboardType="number-pad"
-              mode="outlined"
-              accessibilityLabel={t('settings.dobDay')}
-              style={[styles.input, styles.dobField]}
-              testID="settings-dob-day"
+        <View style={styles.dobFieldWrap}>
+          <Pressable
+            onPress={openDateOfBirthPicker}
+            accessibilityRole="button"
+            accessibilityLabel={dateOfBirthA11y}
+            testID="settings-dob-field"
+          >
+            <View pointerEvents="none">
+              <TextInput
+                mode="outlined"
+                label={t('settings.dateOfBirth')}
+                value={formattedDateOfBirth}
+                editable={false}
+                right={
+                  draftDateOfBirth ? (
+                    <TextInput.Icon icon="close-circle" />
+                  ) : (
+                    <TextInput.Icon icon="menu-down" />
+                  )
+                }
+                style={styles.input}
+              />
+            </View>
+          </Pressable>
+          {draftDateOfBirth ? (
+            <Pressable
+              onPress={clearDateOfBirth}
+              accessibilityRole="button"
+              accessibilityLabel={t('settings.clearDateOfBirth')}
+              testID="settings-dob-clear"
+              style={styles.dobClearHit}
             />
-            <TextInput
-              label={t('settings.dobMonth')}
-              value={rawMonth}
-              onChangeText={(text) => {
-                setRawMonth(digitsOnly(text).slice(0, 2));
-                if (errorMessage) setErrorMessage('');
-              }}
-              onFocus={handleDobFocus}
-              onBlur={handleDobBlur}
-              keyboardType="number-pad"
-              mode="outlined"
-              accessibilityLabel={t('settings.dobMonth')}
-              style={[styles.input, styles.dobField]}
-              testID="settings-dob-month"
-            />
-            <TextInput
-              label={t('settings.dobYear')}
-              value={rawYear}
-              onChangeText={(text) => {
-                setRawYear(digitsOnly(text).slice(0, 4));
-                if (errorMessage) setErrorMessage('');
-              }}
-              onFocus={handleDobFocus}
-              onBlur={handleDobBlur}
-              keyboardType="number-pad"
-              mode="outlined"
-              accessibilityLabel={t('settings.dobYear')}
-              style={[styles.input, styles.dobYearField]}
-              testID="settings-dob-year"
-            />
-          </View>
+          ) : null}
         </View>
 
         <Text variant="titleMedium" style={styles.sectionTitle}>
@@ -525,6 +516,44 @@ export function SettingsModal() {
             </RadioButton.Group>
           </Dialog.Content>
         </Dialog>
+        <Dialog visible={iosPickerVisible} onDismiss={dismissIosPicker} testID="settings-dob-picker">
+          <Dialog.Title>{t('settings.dateOfBirth')}</Dialog.Title>
+          <Dialog.Content>
+            {iosPickerVisible ? (
+              <DateTimePicker
+                testID="settings-dob-ios-spinner"
+                value={iosPickerDraft}
+                mode="date"
+                display="spinner"
+                locale={numberLocale}
+                minimumDate={dateOfBirthPickerBounds(today).minimumDate}
+                maximumDate={dateOfBirthPickerBounds(today).maximumDate}
+                themeVariant={theme.dark ? 'dark' : 'light'}
+                textColor={theme.colors.onSurface}
+                onValueChange={(_event, date) => {
+                  setIosPickerDraft(date);
+                }}
+                style={styles.iosSpinner}
+              />
+            ) : null}
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              onPress={dismissIosPicker}
+              accessibilityLabel={t('settings.cancel')}
+              testID="settings-dob-picker-cancel"
+            >
+              {t('settings.cancel')}
+            </Button>
+            <Button
+              onPress={confirmIosPicker}
+              accessibilityLabel={t('settings.confirm')}
+              testID="settings-dob-picker-confirm"
+            >
+              {t('settings.confirm')}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
       </Portal>
 
       <Snackbar visible={snackVisible} onDismiss={() => setSnackVisible(false)} duration={3000}>
@@ -572,15 +601,21 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 18,
   },
-  dobRow: {
-    flexDirection: 'row',
-    gap: 8,
+  dobFieldWrap: {
+    marginTop: 12,
+    position: 'relative',
   },
-  dobField: {
-    flex: 1,
+  dobClearHit: {
+    position: 'absolute',
+    right: 0,
+    top: 8,
+    width: 48,
+    height: 48,
+    zIndex: 2,
   },
-  dobYearField: {
-    flex: 1.4,
+  iosSpinner: {
+    alignSelf: 'stretch',
+    height: 216,
   },
   segmentedButtons: {
     marginVertical: 10,

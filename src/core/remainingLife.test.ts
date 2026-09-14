@@ -1,10 +1,14 @@
 import {
   calendarDateFromDate,
   completedAgeYears,
+  dateOfBirthPickerBounds,
+  dateOfBirthPickerValue,
+  formatCalendarDateLong,
   isFutureDate,
   isValidCalendarDate,
   remainingLifeYears,
   remainingLifeYearsAtAge,
+  shiftCalendarYears,
 } from './remainingLife';
 import { formatLifeShare, lifeSharePercent } from './lifeShare';
 import i18n from '../i18n/i18n';
@@ -55,6 +59,47 @@ describe('completedAgeYears', () => {
   test('rejects impossible calendar dates', () => {
     expect(isValidCalendarDate({ year: 2020, month: 2, day: 30 })).toBe(false);
     expect(completedAgeYears({ year: 2020, month: 2, day: 30 }, today)).toBeNull();
+  });
+});
+
+describe('date of birth picker value and bounds', () => {
+  const today = { year: 2026, month: 9, day: 10 };
+
+  test('empty field opens on today minus 30 years, within today minus 120 years', () => {
+    expect(calendarDateFromDate(dateOfBirthPickerValue(today, null))).toEqual({
+      year: 1996,
+      month: 9,
+      day: 10,
+    });
+    expect(calendarDateFromDate(dateOfBirthPickerBounds(today).maximumDate)).toEqual(today);
+    expect(calendarDateFromDate(dateOfBirthPickerBounds(today).minimumDate)).toEqual({
+      year: 1906,
+      month: 9,
+      day: 10,
+    });
+  });
+
+  test('a selected date reopens on that date, not the default age', () => {
+    const selected = { year: 1980, month: 1, day: 15 };
+    expect(calendarDateFromDate(dateOfBirthPickerValue(today, selected))).toEqual(selected);
+  });
+
+  test('shifts a leap day onto a valid civil date', () => {
+    expect(shiftCalendarYears({ year: 2024, month: 2, day: 29 }, -30)).toEqual({
+      year: 1994,
+      month: 3,
+      day: 1,
+    });
+  });
+});
+
+describe('formatCalendarDateLong', () => {
+  const date = { year: 1996, month: 9, day: 10 };
+
+  test('uses a long date in the App Locale number locale', () => {
+    expect(normalizeSpaces(formatCalendarDateLong(date, 'ru-RU'))).toBe('10 сентября 1996 г.');
+    expect(formatCalendarDateLong(date, 'en-US')).toBe('September 10, 1996');
+    expect(formatCalendarDateLong(date, 'zh-CN')).toBe('1996年9月10日');
   });
 });
 
