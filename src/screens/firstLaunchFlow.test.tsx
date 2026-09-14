@@ -1,5 +1,5 @@
 import { DeviceEventEmitter } from 'react-native';
-import { render, screen, userEvent } from '@testing-library/react-native';
+import { render, screen, userEvent, waitFor } from '@testing-library/react-native';
 import App from '../../App';
 import { InMemoryStorageDriver, IncomeStorageService } from '../storage/incomeStorage';
 import { LocaleStorageService } from '../storage/localeStorage';
@@ -153,5 +153,44 @@ describe('first launch flow', () => {
 
     expect(await screen.findByText('Дата рождения не может быть в будущем')).toBeOnTheScreen();
     expect(screen.getByTestId('settings-title')).toHaveTextContent('Первоначальная настройка');
+  });
+
+  test('income period select defaults to per-month and changes conversion after save', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+
+    await screen.findByLabelText('Доход на руки');
+    expect(screen.getByLabelText('Период, в месяц')).toBeOnTheScreen();
+    expect(screen.queryByText('Сумма дохода')).toBeNull();
+    expect(screen.queryByText('Период получения')).toBeNull();
+
+    await user.type(screen.getByLabelText('Доход на руки'), '150000');
+    await user.press(screen.getByTestId('settings-period-field'));
+    await user.press(await screen.findByTestId('settings-period-year'));
+    expect(screen.getByLabelText('Период, в год')).toBeOnTheScreen();
+    await user.press(screen.getByLabelText('Сохранить доход'));
+
+    await user.type(await screen.findByLabelText('Цена покупки'), '25000');
+    expect(await screen.findByTestId('life-time-equivalent')).toHaveTextContent('2 мес.');
+    expect(screen.getByText('347 рабочих часов')).toBeOnTheScreen();
+  });
+
+  test('hardware back closes the income period dialog on first launch without leaving settings', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+
+    await screen.findByLabelText('Период, в месяц');
+    await user.press(screen.getByTestId('settings-period-field'));
+    expect(await screen.findByTestId('settings-period-year')).toBeOnTheScreen();
+
+    DeviceEventEmitter.emit('hardwareBackPress');
+    await waitFor(() => {
+      expect(screen.queryByTestId('settings-period-year')).not.toBeOnTheScreen();
+    });
+    expect(screen.queryByText('Пожалуйста, укажите доход для продолжения')).toBeNull();
+    expect(screen.getByTestId('settings-title')).toHaveTextContent('Первоначальная настройка');
+
+    DeviceEventEmitter.emit('hardwareBackPress');
+    expect(await screen.findByText('Пожалуйста, укажите доход для продолжения')).toBeOnTheScreen();
   });
 });

@@ -48,6 +48,20 @@ import { PRIVACY_POLICY_URL } from '../legal/privacyPolicy';
 import { digitsOnly, formatGroupedInteger, parseIntegerDigits } from './integerField';
 import type { SettingsModalNavigationProp, SettingsModalRouteProp } from './types';
 
+const INCOME_PERIODS: readonly IncomePeriod[] = ['hour', 'day', 'week', 'month', 'year'];
+
+const PERIOD_LABEL_KEYS = {
+  hour: 'settings.periodHour',
+  day: 'settings.periodDay',
+  week: 'settings.periodWeek',
+  month: 'settings.periodMonth',
+  year: 'settings.periodYear',
+} as const;
+
+function isIncomePeriod(value: string): value is IncomePeriod {
+  return (INCOME_PERIODS as readonly string[]).includes(value);
+}
+
 export function SettingsModal() {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -74,6 +88,7 @@ export function SettingsModal() {
   const [errorMessage, setErrorMessage] = useState('');
   const [snackVisible, setSnackVisible] = useState(false);
   const [languageDialogVisible, setLanguageDialogVisible] = useState(false);
+  const [periodDialogVisible, setPeriodDialogVisible] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
   const dobOffsetY = useRef(0);
   const dobFocused = useRef(false);
@@ -109,13 +124,17 @@ export function SettingsModal() {
         setLanguageDialogVisible(false);
         return true;
       }
+      if (periodDialogVisible) {
+        setPeriodDialogVisible(false);
+        return true;
+      }
       setSnackVisible(true);
       return true;
     };
 
     const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => subscription.remove();
-  }, [isFirstLaunch, languageDialogVisible]);
+  }, [isFirstLaunch, languageDialogVisible, periodDialogVisible]);
 
   const scrollDateOfBirthIntoView = useCallback(() => {
     scrollRef.current?.scrollTo({
@@ -215,6 +234,20 @@ export function SettingsModal() {
     setLanguageDialogVisible(false);
   };
 
+  const periodLabel = t(PERIOD_LABEL_KEYS[period]);
+
+  const handlePeriodChange = (value: string) => {
+    if (isIncomePeriod(value)) {
+      setPeriod(value);
+    }
+    setPeriodDialogVisible(false);
+  };
+
+  const openPeriodDialog = () => {
+    Keyboard.dismiss();
+    setPeriodDialogVisible(true);
+  };
+
   return (
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: theme.colors.background }]}
@@ -277,22 +310,39 @@ export function SettingsModal() {
           </View>
         </Pressable>
 
-        <Text variant="titleMedium" style={styles.sectionTitle}>
-          {t('settings.incomeAmount')}
-        </Text>
-        <TextInput
-          label={t('settings.netIncome')}
-          value={formatGroupedInteger(rawIncome, numberLocale)}
-          onChangeText={(text) => {
-            setRawIncome(digitsOnly(text));
-            if (errorMessage) setErrorMessage('');
-          }}
-          keyboardType="number-pad"
-          mode="outlined"
-          error={Boolean(errorMessage)}
-          accessibilityLabel={t('settings.netIncomeA11y')}
-          style={styles.input}
-        />
+        <View style={styles.incomeRow}>
+          <TextInput
+            label={t('settings.netIncome')}
+            value={formatGroupedInteger(rawIncome, numberLocale)}
+            onChangeText={(text) => {
+              setRawIncome(digitsOnly(text));
+              if (errorMessage) setErrorMessage('');
+            }}
+            keyboardType="number-pad"
+            mode="outlined"
+            error={Boolean(errorMessage)}
+            accessibilityLabel={t('settings.netIncomeA11y')}
+            style={[styles.input, styles.incomeField]}
+          />
+          <Pressable
+            onPress={openPeriodDialog}
+            accessibilityRole="button"
+            accessibilityLabel={t('settings.periodA11y', { value: periodLabel })}
+            testID="settings-period-field"
+            style={styles.periodField}
+          >
+            <View pointerEvents="none">
+              <TextInput
+                mode="outlined"
+                label={t('settings.period')}
+                value={periodLabel}
+                editable={false}
+                right={<TextInput.Icon icon="menu-down" />}
+                style={styles.input}
+              />
+            </View>
+          </Pressable>
+        </View>
         {errorMessage ? (
           <HelperText type="error" visible>
             {errorMessage}
@@ -302,23 +352,6 @@ export function SettingsModal() {
             {t('settings.incomeHint')}
           </HelperText>
         )}
-
-        <Text variant="titleMedium" style={styles.sectionTitle}>
-          {t('settings.period')}
-        </Text>
-        <SegmentedButtons
-          value={period}
-          onValueChange={(val) => setPeriod(val as IncomePeriod)}
-          density="small"
-          buttons={[
-            { value: 'hour', label: t('settings.periodHour') },
-            { value: 'day', label: t('settings.periodDay') },
-            { value: 'week', label: t('settings.periodWeek') },
-            { value: 'month', label: t('settings.periodMonth') },
-            { value: 'year', label: t('settings.periodYear') },
-          ]}
-          style={styles.segmentedButtons}
-        />
 
         <Card style={[styles.previewCard, { backgroundColor: theme.colors.elevation.level1 }]} mode="elevated">
           <Card.Content>
@@ -475,6 +508,23 @@ export function SettingsModal() {
             </RadioButton.Group>
           </Dialog.Content>
         </Dialog>
+        <Dialog visible={periodDialogVisible} onDismiss={() => setPeriodDialogVisible(false)}>
+          <Dialog.Title>{t('settings.period')}</Dialog.Title>
+          <Dialog.Content>
+            <RadioButton.Group value={period} onValueChange={handlePeriodChange}>
+              {INCOME_PERIODS.map((value) => (
+                <RadioButton.Item
+                  key={value}
+                  label={t(PERIOD_LABEL_KEYS[value])}
+                  value={value}
+                  position="leading"
+                  accessibilityLabel={t(PERIOD_LABEL_KEYS[value])}
+                  testID={`settings-period-${value}`}
+                />
+              ))}
+            </RadioButton.Group>
+          </Dialog.Content>
+        </Dialog>
       </Portal>
 
       <Snackbar visible={snackVisible} onDismiss={() => setSnackVisible(false)} duration={3000}>
@@ -502,6 +552,17 @@ const styles = StyleSheet.create({
   },
   languageField: {
     marginBottom: 4,
+  },
+  incomeRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+  },
+  incomeField: {
+    flex: 3,
+  },
+  periodField: {
+    flex: 2,
   },
   sectionTitle: {
     fontWeight: '700',
